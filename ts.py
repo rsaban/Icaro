@@ -181,6 +181,9 @@ class ficha_ts:
 		self.tbFechaInicio = builder.get_object("tbFechaInicio")
 		self.tbObjetivos = builder.get_object("tbObjetivos")
 		self.cbxEstado = builder.get_object("cbxEstado")
+		self.btAceptarCurso = builder.get_object("btAceptarCurso")
+		self.btEliminarCurso = builder.get_object("btEliminarCurso")
+		self.fixed7 = builder.get_object("fixed7")	
 	
 		#practicaLabora	
 		self.ventanaPracticaLabora = builder.get_object("practicaLabora")
@@ -242,6 +245,7 @@ class ficha_ts:
 		self.lstvCitaOrienta = builder.get_object("lstvCitaOrienta")
 		self.lsTecReg = builder.get_object("lsTecReg")
 		self.lstvAAcoge = builder.get_object("lstvAAcoge")
+		self.lstvCursosLabora = builder.get_object("lstvCursosLabora")
 
 		#aplicar cambio de color a los fondos del notebook
 		self.acambiar8.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
@@ -269,7 +273,7 @@ class ficha_ts:
 				"on_btSeleccFam_clicked": self.btSelecFamClick,
 				"on_btNuevoContTS_clicked": self.btNuevoContTSClick,
 				"on_contactosTS_delete_event": self.contactosTSDelete,
-				"on_btSelecFam2_clicked": self.btSelecFamClick2,
+				"on_btSelecFam2_clicked": self.btSelecFamClick2, 
 				"on_btProxCitaSAE_clicked": self.btProxCitaSAEClick,
 				"on_proxCitaSAE_delete_event": self.proxCitaSAEDelete,
 				"on_btNuevoAAcoge_clicked": self.btNuevoAAcogeClick,
@@ -310,7 +314,11 @@ class ficha_ts:
 				"on_btSelecTecnico_clicked": self.btSelecTecnicoClick,
 				"on_btAceptarSelecTecnico_clicked": self.btAceptarSelecTecnicoClick,
 				"on_btDetalleConsultaAAcoge_clicked": self.btDetalleConsultaAAcogeClick,
-				"on_btEliminarConsultaAcoge_clicked": self.btEliminarConsultaAAcogeClick
+				"on_btEliminarConsultaAcoge_clicked": self.btEliminarConsultaAAcogeClick,
+				"on_btSelecOrientaLabora_clicked": self.btSelecOrientaLaboraClick,
+				"on_btAceptarCurso_clicked": self.btAceptarCursoClick,
+				"on_btDetalleCursoLabora_clicked": self.btDetalleCursoLaboraClick,
+				"on_btEliminarCurso_clicked": self.btEliminarCursoClick
 				} 
 		builder.connect_signals(dict)
 
@@ -538,6 +546,7 @@ class ficha_ts:
 		self.cargartvCitasSAE()
 		self.cargartvCitasOrienta()
 		self.cargartvConsultasAACoge()
+		self.cargartvCursosLabora()
 		
 
 		cursor.close()	
@@ -755,6 +764,45 @@ class ficha_ts:
 		
 
 		cursor.close()	
+
+	def cargartvCursosLabora(self):
+		self.lstvCursosLabora.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryObtenerIdLabora = "SELECT IdLabora FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
+
+		try:
+			cursor.execute(queryObtenerIdLabora)
+		except Exception, e:
+			raise e
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Fallo al recuperar los datos")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		comprobacion = cursor.fetchone()
+			
+		
+		if comprobacion != None:
+			querytvConsultasCursosLabora = "SELECT LABORA_CURSOS.CursoRealizado, LABORA_CURSOS.FechaInicioCurso, LABORA_CURSOS.Estado, LABORA_CURSOS.IdCurso FROM LABORA, LABORA_CURSOS WHERE LABORA.IdMenor = \'" + idmenor + "\' AND LABORA.IdLabora = \'" + str(comprobacion[0]) + "\' AND LABORA.IdLabora = LABORA_CURSOS.IdLabora ORDER BY LABORA_CURSOS.FechaInicioCurso DESC"
+
+			try:
+				cursor.execute(querytvConsultasCursosLabora)
+			except Exception, e:
+				raise e
+
+			resultado = cursor.fetchall()
+
+			if len(resultado) != 0:
+				for i in range(len(resultado)):
+					self.lstvCursosLabora.append(resultado[i])
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Fallo al recuperar los datos")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
 
 	def btAceptarClick(self, widget):#Este es el boton Acutalizar Pestaña
 		paginaActual = self.notebook1.get_current_page()
@@ -2349,6 +2397,8 @@ class ficha_ts:
 			self.tbOrientador.set_text(tecSelec)
 		elif self.btAceptarSelecTecnico.get_label() == " Seleccionar ":
 			self.tbTecnico.set_text(tecSelec)
+		elif self.btAceptarSelecTecnico.get_label() == "  Seleccionar  ":
+			self.tbOrientadorLabora.set_text(tecSelec)
 
 	def btAceptarConsultaAcogeClick(self, widget):
 		servicio = self.tbServicio.get_text()
@@ -2479,27 +2529,192 @@ class ficha_ts:
 
 		cursor.close()
 		
+	def btSelecOrientaLaboraClick(self, widget):
+		self.ventanaSelecTecnico.show()
+		self.btAceptarSelecTecnico.set_label("  Seleccionar  ")
+		self.lsTecReg.clear()
 
+		c = conexion.db
+		cursor = c.cursor()
 
+		queryOrientadorLabora = "SELECT DISTINCT OrientadorLabora FROM LABORA"
 
+		try:
+			cursor.execute(queryOrientadorLabora)
+		except Exception, e:
+			raise e
 
+		orientadoresLabora = cursor.fetchall()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+		if len(orientadoresLabora) > 0:
+			for i in range(len(orientadoresLabora)):
+				self.lsTecReg.append(orientadoresLabora[i])
+		else:
+			self.lsTecReg.append(row=None)
+			
+			
+		cursor.close()
 
 	def btNuevoLaboraClick(self, widget):
 		self.ventanaCursoLabora.show()
+		self.btAceptarCurso.set_label("Aceptar")
+		self.fixed7.move(self.btAceptarCurso, 170, 0)
+		self.btEliminarCurso.set_visible(False)
+		self.tbTitulo.set_text("")
+		self.tbFechaInicio.set_text("")
+		textbuffer = self.tbObjetivos.get_buffer()
+		textbuffer.set_text("")
+		self.cbxEstado.set_active(0)
+
+	def btAceptarCursoClick(self, widget):
+		titulo = self.tbTitulo.get_text()
+
+		fICurso = self.tbFechaInicio.get_text()
+		day = datetime.datetime.strptime(fICurso, '%d/%m/%Y')
+		fechaICurso = day.strftime('%Y-%m-%d')
+				
+		obj = self.tbObjetivos.get_buffer()
+		objetivos = obj.get_text(*obj.get_bounds())
+		
+		estado = self.cbxEstado.get_active_text()
+
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		if self.btAceptarCurso.get_label() == "Aceptar":
+			
+			queryObtenerIdLabora = "SELECT IdLabora FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
+
+			try:
+				cursor.execute(queryObtenerIdLabora)
+			except Exception, e:
+				raise e
+				
+			comprobacion = cursor.fetchone()
+
+			if comprobacion != None:
+		
+				queryInsertarCursoLabora = "INSERT INTO LABORA_CURSOS (CursoRealizado, FechaInicioCurso, ObjetivosCurso, Estado, IdLabora) VALUES (\'" + titulo + "\', '" + fechaICurso + "\', '" + objetivos + "\', '" + estado + "\', '" + str(comprobacion[0]) + "\')" 
+
+				try:
+					cursor.execute(queryInsertarCursoLabora)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Curso registrado con éxito")
+					self.btMsgBoxAceptar.set_label("       Cerrar       ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("       Cerrar       ")
+
+				self.cargartvCursosLabora()
+			else:
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Registre primero un orientador de referencia")
+				self.btMsgBoxAceptar.set_label("Cerrar")
+			
+		elif self.btAceptarCurso.get_label() == "Actualizar":
+			tv = self.tvCursosLabora
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idcursolabora = model[treeiter][3]
+			
+			c = conexion.db
+			cursor = c.cursor()
+		
+			queryActualizarCursoLabora = "UPDATE LABORA_CURSOS SET CursoRealizado = \'" + titulo + "\', FechaInicioCurso = \'" + fechaICurso + "\', ObjetivosCurso = \'" + objetivos + "\', Estado = \'" + estado + "\' WHERE IdCurso = \'" + idcursolabora + "\'"
+
+			try:
+				cursor.execute(queryActualizarCursoLabora)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Curso actualizado con éxito")
+				self.btMsgBoxAceptar.set_label("       Cerrar       ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La actualización ha fallado")
+				self.btMsgBoxAceptar.set_label("       Cerrar       ")
+
+			self.cargartvCursosLabora()
+			
+		cursor.close()
+
+	def btDetalleCursoLaboraClick(self, widget):
+		self.ventanaCursoLabora.show()
+		self.btAceptarCurso.set_label("Actualizar")
+		self.fixed7.move(self.btAceptarCurso, 130, 0)
+		self.btEliminarCurso.set_visible(True)
+		self.fixed7.move(self.btEliminarCurso, 235, 0)
+
+		tv = self.tvCursosLabora
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idcursolabora = model[treeiter][3]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetalleCursoLabora = "SELECT * FROM LABORA_CURSOS WHERE IdCurso = \'" + idcursolabora + "\'"
+
+		try:
+			cursor.execute(queryDetalleCursoLabora)
+		except Exception, e:
+			raise e
+
+		resultadoDetalleCursoLabora = cursor.fetchone()
+
+		if resultadoDetalleCursoLabora != None:
+			self.tbTitulo.set_text(resultadoDetalleCursoLabora[1])
+
+			dateFormat = resultadoDetalleCursoLabora[2].strftime("%d/%m/%Y") 
+			self.tbFechaInicio.set_text(dateFormat)
+
+			textbuffer = self.tbObjetivos.get_buffer() 
+ 		 	textbuffer.set_text(str(resultadoDetalleCursoLabora[3]))
+
+ 		 	for posicion, elemento in enumerate(self.lsCursoLabora):
+ 		 		f = elemento[0]
+ 		 		if f == str(resultadoDetalleCursoLabora[4]):
+ 		 			self.cbxEstado.set_active(posicion)
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btEliminarCursoClick(self, widget):
+		tv = self.tvCursosLabora
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idcursolabora = model[treeiter][3]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryBorrarCursoLabora = "DELETE FROM LABORA_CURSOS WHERE IdCurso = \'" + idcursolabora + "\'"
+		
+		try:
+			cursor.execute(queryBorrarCursoLabora)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Eliminada con éxito")
+			self.btMsgBoxAceptar.set_label("       Cerrar       ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("La eliminación ha fallado")
+			self.btMsgBoxAceptar.set_label("       Cerrar       ")
+
+		self.cargartvCursosLabora()
+
+		cursor.close()
 
 	def cursoLaboraDelete(self, widget, data=None):
 		self.ventanaCursoLabora.hide()
@@ -2511,6 +2726,22 @@ class ficha_ts:
 	def practicaLaboraDelete(self, widget, data=None):
 		self.ventanaPracticaLabora.hide()
 		return True
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	def btNuevoExtranjClick(self, widget):
 		self.ventanaNuevoEmpleoExtranj.show()
@@ -2561,6 +2792,9 @@ class ficha_ts:
 		elif self.btMsgBoxAceptar.get_label() == "      Cerrar      ":
 			self.msgbox.hide()
 			self.ventanaNuevoAAcoge.hide()
+		elif self.btMsgBoxAceptar.get_label() == "       Cerrar       ":
+			self.msgbox.hide()
+			self.ventanaCursoLabora.hide()
 
 
 		
