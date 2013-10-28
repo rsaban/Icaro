@@ -204,11 +204,17 @@ class ficha_ts:
 		self.tbEmpresa = builder.get_object("tbEmpresa")
 		self.tbFechaInicioEmpresa = builder.get_object("tbFechaInicioEmpresa")
 		self.tbDuracion = builder.get_object("tbDuracion")
+		self.btAceptarEmpresaExtranj = builder.get_object("btAceptarEmpresaExtranj")
+		self.btEliminarEmpresaExtranj = builder.get_object("btEliminarEmpresaExtranj")
+		self.fixed9 = builder.get_object("fixed9")
 	
 		#propuestaExTut
 		self.ventanaPropExtut = builder.get_object("propuestaExTut")
 		self.cbxEntidadExtut = builder.get_object("cbxEntidadExtut")
 		self.tbFechaEntidad = builder.get_object("tbFechaEntidad")
+		self.btAceptarPropuesta = builder.get_object("btAceptarPropuesta")
+		self.btEliminarPropuesta = builder.get_object("btEliminarPropuesta")
+		self.fixed11 = builder.get_object("fixed11")
 
 		#reunionesExtut
 		self.ventanaReunionesExtut = builder.get_object("reunionesExTut")
@@ -223,6 +229,9 @@ class ficha_ts:
 		self.tbDireccionEntidad = builder.get_object("tbDireccionEntidad")
 		self.tbTelefonoEntidad = builder.get_object("tbTelefonoEntidad")
 		self.tbMailEntidad = builder.get_object("tbMailEntidad")
+		self.btAceptarEntidadExtut = builder.get_object("btAceptarEntidadExtut")
+		self.btEliminarEntidadExtut = builder.get_object("btEliminarEntidadExtut")
+		self.fixed10 = builder.get_object("fixed10")
 
 		#obtenemos los liststore
 		self.lsCursoLabora = builder.get_object("lsCursoLabora")
@@ -250,6 +259,11 @@ class ficha_ts:
 		self.lstvAAcoge = builder.get_object("lstvAAcoge")
 		self.lstvCursosLabora = builder.get_object("lstvCursosLabora")
 		self.lstvPracticasLabora = builder.get_object("lstvPracticasLabora")
+		self.lstvCRoja = builder.get_object("lstvCRoja")
+		self.lstvSGIT = builder.get_object("lstvSGIT")
+		self.lstvExtranjeria = builder.get_object("lstvExtranjeria")
+		self.lsEntidadExtut = builder.get_object("lsEntidadExtut")
+		self.lstvPropExtut = builder.get_object("lstvPropExtut")
 
 		#aplicar cambio de color a los fondos del notebook
 		self.acambiar8.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
@@ -325,7 +339,18 @@ class ficha_ts:
 				"on_btEliminarCurso_clicked": self.btEliminarCursoClick,
 				"on_btAceptarPractica_clicked": self.btAceptarPracticaClick,
 				"on_btDetallePracticaLabora_clicked": self.btDetallePracticaClick,
-				"on_btEliminarPractica_clicked": self.btEliminarPracticaClick
+				"on_btEliminarPractica_clicked": self.btEliminarPracticaClick,
+				"on_btConsultaCRoja_clicked": self.btConsultaCRojaClick,
+				"on_btDetalleCRoja_clicked": self.btDetalleCRojaClick,
+				"on_btConsultaSGIT_clicked": self.btConsultasSGITClick,
+				"on_btDetalleConsultaSGIT_clicked": self.btDetalleSGITClick,
+				"on_btAceptarEmpresaExtranj_clicked": self.btAceptarEmpresaExtranjClick,
+				"on_btDetalleEmpleo_clicked": self.btDetalleEmpleoClick,
+				"on_btEliminarEmpresaExtranj_clicked": self.btEliminarEmpresaExtranjClick,
+				"on_btAceptarEntidadExtut_clicked": self.btAceptarEntidadExtut,
+				"on_btAceptarPropuesta_clicked": self.btAceptarPropuestaClick,
+				"on_btDetallePropuesta_clicked": self.btDetallePropuestaClick,
+				"on_btEliminarPropuesta_clicked": self.btEliminarPropuestaClick
 				} 
 		builder.connect_signals(dict)
 
@@ -555,7 +580,10 @@ class ficha_ts:
 		self.cargartvConsultasAACoge()
 		self.cargartvCursosLabora()
 		self.cargartvPracticasLabora()
-		
+		self.cargartvConsultasCRoja()
+		self.cargartvConsultasSGIT()
+		self.cargartvExtranjeria()
+		self.cargartvPropuestasExtut()
 
 		cursor.close()	
 
@@ -850,6 +878,112 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+
+	def cargartvConsultasCRoja(self):
+		self.lstvCRoja.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+		
+		querytvConsultasCRoja = "SELECT ServicioConsultado, Tecnico, FechaConsulta, IdCruzRoja FROM CRUZ_ROJA WHERE IdMenor = \'" + idmenor + "\' ORDER BY FechaConsulta DESC"
+
+		try:
+			cursor.execute(querytvConsultasCRoja)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lstvCRoja.append(resultado[i])
+		
+
+		cursor.close()	
+
+	def cargartvConsultasSGIT(self):
+		self.lstvSGIT.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+		
+		querytvConsultasSGIT = "SELECT ServicioConsultado, Tecnico, FechaConsulta, IdSGit FROM SGIT WHERE IdMenor = \'" + idmenor + "\' ORDER BY FechaConsulta DESC"
+
+		try:
+			cursor.execute(querytvConsultasSGIT)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lstvSGIT.append(resultado[i])
+		
+
+		cursor.close()	
+
+	def cargartvExtranjeria(self):
+		self.lstvExtranjeria.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+		
+		queryObtenerIdExtranjeria = "SELECT IdExtranjeria FROM EXTRANJERIA WHERE IdMenor = \'" + idmenor + "\'"
+
+		try:
+			cursor.execute(queryObtenerIdExtranjeria)
+		except Exception, e:
+			raise e
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Fallo al recuperar los datos")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		comprobacion = cursor.fetchone()
+			
+		
+		if comprobacion != None:
+			querytvEmpleoExtranjeria= "SELECT EXTRANJERIA_EMPRESA.NombreEEmpresa, EXTRANJERIA_EMPRESA.FechaInicio, EXTRANJERIA_EMPRESA.IdEEmpresa FROM EXTRANJERIA, EXTRANJERIA_EMPRESA WHERE EXTRANJERIA.IdMenor = \'" + idmenor + "\' AND EXTRANJERIA.IdExtranjeria = \'" + str(comprobacion[0]) + "\' AND EXTRANJERIA.IdExtranjeria = EXTRANJERIA_EMPRESA.IdExtranjeria ORDER BY EXTRANJERIA_EMPRESA.FechaInicio DESC"
+
+			try:
+				cursor.execute(querytvEmpleoExtranjeria)
+			except Exception, e:
+				raise e
+
+			resultado = cursor.fetchall()
+
+			if len(resultado) != 0:
+				for i in range(len(resultado)):
+					self.lstvExtranjeria.append(resultado[i])
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Fallo al recuperar los datos")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+
+		cursor.close()	
+
+	def cargartvPropuestasExtut(self):
+		self.lstvPropExtut.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+		
+		querytvPropuestas = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_PROPUESTAS.FechaPropuesta, EXTUT_PROPUESTAS.IdProp FROM EXTUT, EXTUT_ENTIDADES, EXTUT_PROPUESTAS  WHERE EXTUT.IdMenor = \'" + idmenor + "\' AND EXTUT.IdExtut = EXTUT_PROPUESTAS.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad ORDER BY EXTUT_PROPUESTAS.FechaPropuesta DESC"
+
+		try:
+			cursor.execute(querytvPropuestas)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lstvPropExtut.append(resultado[i])
+		
+
+		cursor.close()	
+
 
 	def btAceptarClick(self, widget):#Este es el boton Acutalizar Pestaña
 		paginaActual = self.notebook1.get_current_page()
@@ -1898,7 +2032,6 @@ class ficha_ts:
 
 		cursor.close()
 
-	
 	def btNuevoContTSClick(self, widget):
 		self.ventanaContactosTS.show()
 		self.btAceptarCTS.set_label("Aceptar")
@@ -2396,6 +2529,7 @@ class ficha_ts:
 
 	def btNuevoAAcogeClick(self, widget):
 		self.ventanaNuevoAAcoge.show()
+		self.ventanaNuevoAAcoge.set_title("Andalucía Acoge")
 		self.btAceptarConsultaAcoge.set_label("Aceptar")
 		self.fixed6.move(self.btAceptarConsultaAcoge, 140, 0)
 		self.btEliminarConsultaAcoge.set_visible(False)
@@ -2410,31 +2544,57 @@ class ficha_ts:
 		return True
 
 	def btSelecTecnicoClick(self, widget):
-		self.ventanaSelecTecnico.show()
-		self.btAceptarSelecTecnico.set_label(" Seleccionar ")
-		self.lsTecReg.clear()
+		
+		if self.ventanaNuevoAAcoge.get_title() == "Andalucía Acoge":
+			self.ventanaSelecTecnico.show()
+			self.btAceptarSelecTecnico.set_label(" Seleccionar ")
+			self.lsTecReg.clear()
 
-		c = conexion.db
-		cursor = c.cursor()
+			c = conexion.db
+			cursor = c.cursor()
 
-		queryTecnico = "SELECT DISTINCT Tecnico FROM AACOGE"
+			queryTecnico = "SELECT DISTINCT Tecnico FROM AACOGE"
 
-		try:
-			cursor.execute(queryTecnico)
-		except Exception, e:
-			raise e
+			try:
+				cursor.execute(queryTecnico)
+			except Exception, e:
+				raise e
 
-		tecnicos = cursor.fetchall()
+			tecnicos = cursor.fetchall()
 
-		if len(tecnicos) > 0:
-			for i in range(len(tecnicos)):
-				self.lsTecReg.append(tecnicos[i])
-		else:
-			self.lsTecReg.append(row=None)
-			#self.lsTecReg.append(["No hay resultados", ])
-			
-		cursor.close()
+			if len(tecnicos) > 0:
+				for i in range(len(tecnicos)):
+					self.lsTecReg.append(tecnicos[i])
+			else:
+				self.lsTecReg.append(row=None)
+				#self.lsTecReg.append(["No hay resultados", ])
+				
+			cursor.close()
 
+		elif self.ventanaNuevoAAcoge.get_title() == "Cruz Roja":
+			self.ventanaSelecTecnico.show()
+			self.btAceptarSelecTecnico.set_label("   Seleccionar   ")
+			self.lsTecReg.clear()
+
+			c = conexion.db
+			cursor = c.cursor()
+
+			queryTecnico = "SELECT DISTINCT Tecnico FROM CRUZ_ROJA"
+
+			try:
+				cursor.execute(queryTecnico)
+			except Exception, e:
+				raise e
+
+			tecnicos = cursor.fetchall()
+
+			if len(tecnicos) > 0:
+				for i in range(len(tecnicos)):
+					self.lsTecReg.append(tecnicos[i])
+			else:
+				self.lsTecReg.append(row=None)
+								
+			cursor.close()
 
 	def btAceptarSelecTecnicoClick(self, widget):
 		tecSelec = self.cbxTecReg.get_active_text()
@@ -2446,6 +2606,8 @@ class ficha_ts:
 			self.tbTecnico.set_text(tecSelec)
 		elif self.btAceptarSelecTecnico.get_label() == "  Seleccionar  ":
 			self.tbOrientadorLabora.set_text(tecSelec)
+		elif self.btAceptarSelecTecnico.get_label() == "   Seleccionar   ":
+			self.tbTecnico.set_text(tecSelec)
 
 	def btAceptarConsultaAcogeClick(self, widget):
 		servicio = self.tbServicio.get_text()
@@ -2460,54 +2622,149 @@ class ficha_ts:
 		c = conexion.db
 		cursor = c.cursor()
 
-		if self.btAceptarConsultaAcoge.get_label() == "Aceptar":
-			
-			queryInsertarConsultaAAcoge = "INSERT INTO AACOGE (ServicioConsultado, Tecnico, FechaConsulta, Observaciones, IdMenor) VALUES (\'" + servicio + "\', '" + tco + "\', '" + fechaConsulta + "\', '" + obs + "\', '" + idmenor + "\')" 
+		if self.ventanaNuevoAAcoge.get_title() == "Andalucía Acoge":
+			if self.btAceptarConsultaAcoge.get_label() == "Aceptar":
+				
+				queryInsertarConsultaAAcoge = "INSERT INTO AACOGE (ServicioConsultado, Tecnico, FechaConsulta, Observaciones, IdMenor) VALUES (\'" + servicio + "\', '" + tco + "\', '" + fechaConsulta + "\', '" + obs + "\', '" + idmenor + "\')" 
 
-			try:
-				cursor.execute(queryInsertarConsultaAAcoge)
-				c.commit()
-				self.msgbox.show()
-				self.lbMsgBox.set_text("Consulta registrada con éxito")
-				self.btMsgBoxAceptar.set_label("      Cerrar      ")
-			except Exception, e:
-				c.rollback()
-				self.msgbox.show()
-				self.lbMsgBox.set_text("Fallo en el registro")
-				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				try:
+					cursor.execute(queryInsertarConsultaAAcoge)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Consulta registrada con éxito")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
 
-			self.cargartvConsultasAACoge()
+				self.cargartvConsultasAACoge()
+				
+			elif self.btAceptarConsultaAcoge.get_label() == "Actualizar":
+				tv = self.tvConsultasAAcoge
+				selection = tv.get_selection()
+				model, treeiter = selection.get_selected()
+				if treeiter != None:
+					idaacoge = model[treeiter][3]
+				
+				c = conexion.db
+				cursor = c.cursor()
 			
-		elif self.btAceptarConsultaAcoge.get_label() == "Actualizar":
-			tv = self.tvConsultasAAcoge
-			selection = tv.get_selection()
-			model, treeiter = selection.get_selected()
-			if treeiter != None:
-				idaacoge = model[treeiter][3]
-			
-			c = conexion.db
-			cursor = c.cursor()
+				queryActualizarConsultaAcoge = "UPDATE AACOGE SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdAAcoge = \'" + idaacoge + "\'"
+
+				try:
+					cursor.execute(queryActualizarConsultaAcoge)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Consulta actualizada con éxito")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("La actualización ha fallado")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+				self.cargartvConsultasAACoge()
 		
-			queryActualizarConsultaAcoge = "UPDATE AACOGE SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdAAcoge = \'" + idaacoge + "\'"
+		elif self.ventanaNuevoAAcoge.get_title() == "Cruz Roja":
+			if self.btAceptarConsultaAcoge.get_label() == "Aceptar":
+				
+				queryInsertarConsultaCRoja = "INSERT INTO CRUZ_ROJA (ServicioConsultado, Tecnico, FechaConsulta, Observaciones, IdMenor) VALUES (\'" + servicio + "\', '" + tco + "\', '" + fechaConsulta + "\', '" + obs + "\', '" + idmenor + "\')" 
 
-			try:
-				cursor.execute(queryActualizarConsultaAcoge)
-				c.commit()
-				self.msgbox.show()
-				self.lbMsgBox.set_text("Consulta actualizada con éxito")
-				self.btMsgBoxAceptar.set_label("      Cerrar      ")
-			except Exception, e:
-				c.rollback()
-				self.msgbox.show()
-				self.lbMsgBox.set_text("La actualización ha fallado")
-				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				try:
+					cursor.execute(queryInsertarConsultaCRoja)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Consulta registrada con éxito")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
 
-			self.cargartvConsultasAACoge()
+				self.cargartvConsultasCRoja()
+				
+			elif self.btAceptarConsultaAcoge.get_label() == "Actualizar":
+				tv = self.tvConsultasCRoja
+				selection = tv.get_selection()
+				model, treeiter = selection.get_selected()
+				if treeiter != None:
+					idcroja = model[treeiter][3]
+				
+				c = conexion.db
+				cursor = c.cursor()
 			
+				queryActualizarConsultaCRoja = "UPDATE CRUZ_ROJA SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdCruzRoja = \'" + idcroja + "\'"
+
+				try:
+					cursor.execute(queryActualizarConsultaCRoja)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Consulta actualizada con éxito")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("La actualización ha fallado")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+				self.cargartvConsultasCRoja()
+
+		elif self.ventanaNuevoAAcoge.get_title() == "Secretariado Gitano":
+			if self.btAceptarConsultaAcoge.get_label() == "Aceptar":
+				
+				queryInsertarConsultaSGIT = "INSERT INTO SGIT (ServicioConsultado, Tecnico, FechaConsulta, Observaciones, IdMenor) VALUES (\'" + servicio + "\', '" + tco + "\', '" + fechaConsulta + "\', '" + obs + "\', '" + idmenor + "\')" 
+
+				try:
+					cursor.execute(queryInsertarConsultaSGIT)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Consulta registrada con éxito")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+				self.cargartvConsultasSGIT()
+				
+			elif self.btAceptarConsultaAcoge.get_label() == "Actualizar":
+				tv = self.tvConsultasSGIT
+				selection = tv.get_selection()
+				model, treeiter = selection.get_selected()
+				if treeiter != None:
+					idsgit = model[treeiter][3]
+				
+				c = conexion.db
+				cursor = c.cursor()
+			
+				queryActualizarConsultaSGIT = "UPDATE SGIT SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdSGit = \'" + idsgit + "\'"
+
+				try:
+					cursor.execute(queryActualizarConsultaSGIT)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Consulta actualizada con éxito")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("La actualización ha fallado")
+					self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+				self.cargartvConsultasSGIT()
+
+
+
+
 		cursor.close()
 
 	def btDetalleConsultaAAcogeClick(self, widget):
 		self.ventanaNuevoAAcoge.show()
+		self.ventanaNuevoAAcoge.set_title("Andalucía Acoge")
 		self.btAceptarConsultaAcoge.set_label("Actualizar")
 		self.fixed6.move(self.btAceptarConsultaAcoge, 140, 0)
 		self.btEliminarConsultaAcoge.set_visible(True)
@@ -2549,30 +2806,78 @@ class ficha_ts:
 		cursor.close()
 
 	def btEliminarConsultaAAcogeClick(self, widget):
-		tv = self.tvConsultasAAcoge
-		selection = tv.get_selection()
-		model, treeiter = selection.get_selected()
-		if treeiter != None:
-			idaacoge = model[treeiter][3]
-						
 		c = conexion.db
 		cursor = c.cursor()
 
-		queryBorrarConsultaAAcoge = "DELETE FROM AACOGE WHERE IdAAcoge = \'" + idaacoge + "\'"
-		
-		try:
-			cursor.execute(queryBorrarConsultaAAcoge)
-			c.commit()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("Eliminada con éxito")
-			self.btMsgBoxAceptar.set_label("      Cerrar      ")
-		except Exception, e:
-			c.rollback()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("La eliminación ha fallado")
-			self.btMsgBoxAceptar.set_label("      Cerrar      ")
 
-		self.cargartvConsultasAACoge()
+		if self.ventanaNuevoAAcoge.get_title() == "Andalucía Acoge":
+			tv = self.tvConsultasAAcoge
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idaacoge = model[treeiter][3]
+							
+			queryBorrarConsultaAAcoge = "DELETE FROM AACOGE WHERE IdAAcoge = \'" + idaacoge + "\'"
+			
+			try:
+				cursor.execute(queryBorrarConsultaAAcoge)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Eliminada con éxito")
+				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La eliminación ha fallado")
+				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+			self.cargartvConsultasAACoge()
+
+		elif self.ventanaNuevoAAcoge.get_title() == "Cruz Roja":
+			tv = self.tvConsultasCRoja
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idcroja = model[treeiter][3]
+							
+			queryBorrarConsultaCRoja = "DELETE FROM CRUZ_ROJA WHERE IdCruzRoja = \'" + idcroja + "\'"
+			
+			try:
+				cursor.execute(queryBorrarConsultaCRoja)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Eliminada con éxito")
+				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La eliminación ha fallado")
+				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+			self.cargartvConsultasCRoja()
+
+		elif self.ventanaNuevoAAcoge.get_title() == "Secretariado Gitano":
+			tv = self.tvConsultasSGIT
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idsgit = model[treeiter][3]
+							
+			queryBorrarConsultaSGIT = "DELETE FROM SGIT WHERE IdSGit = \'" + idsgit + "\'"
+			
+			try:
+				cursor.execute(queryBorrarConsultaSGIT)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Eliminada con éxito")
+				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La eliminación ha fallado")
+				self.btMsgBoxAceptar.set_label("      Cerrar      ")
+
+			self.cargartvConsultasSGIT()
 
 		cursor.close()
 		
@@ -2940,37 +3245,269 @@ class ficha_ts:
 
 		cursor.close()
 
-
-
-
-
-
-
-
-
-
 	def practicaLaboraDelete(self, widget, data=None):
 		self.ventanaPracticaLabora.hide()
 		return True
 
+	def btConsultaCRojaClick(self, widget):
+		self.ventanaNuevoAAcoge.show()
+		self.ventanaNuevoAAcoge.set_title("Cruz Roja")
+		self.btAceptarConsultaAcoge.set_label("Aceptar")
+		self.fixed6.move(self.btAceptarConsultaAcoge, 140, 0)
+		self.btEliminarConsultaAcoge.set_visible(False)
+		self.tbServicio.set_text("")
+		self.tbTecnico.set_text("")
+		self.tbFechaConsulta.set_text("")
+		textbuffer = self.tbObserv.get_buffer()
+		textbuffer.set_text("")
 
+	def btDetalleCRojaClick(self, widget):
+		self.ventanaNuevoAAcoge.show()
+		self.ventanaNuevoAAcoge.set_title("Cruz Roja")
+		self.btAceptarConsultaAcoge.set_label("Actualizar")
+		self.fixed6.move(self.btAceptarConsultaAcoge, 140, 0)
+		self.btEliminarConsultaAcoge.set_visible(True)
+		self.fixed6.move(self.btEliminarConsultaAcoge, 250, 0)
 
+		tv = self.tvConsultasCRoja
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idcroja = model[treeiter][3]
+						
+		c = conexion.db
+		cursor = c.cursor()
 
+		queryDetalleConsultaCRoja = "SELECT * FROM CRUZ_ROJA WHERE IdCruzRoja = \'" + idcroja + "\'"
 
+		try:
+			cursor.execute(queryDetalleConsultaCRoja)
+		except Exception, e:
+			raise e
 
+		resultadoDetalleConsultaCroja = cursor.fetchone()
 
+		if resultadoDetalleConsultaCroja != None:
+			self.tbServicio.set_text(resultadoDetalleConsultaCroja[1])
+			self.tbTecnico.set_text(resultadoDetalleConsultaCroja[2])
+			
+			dateFormat = resultadoDetalleConsultaCroja[3].strftime("%d/%m/%Y") 
+			self.tbFechaConsulta.set_text(dateFormat)
 
+			textbuffer = self.tbObserv.get_buffer() 
+ 		 	textbuffer.set_text(str(resultadoDetalleConsultaCroja[4]))
+			
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
 
+	def btConsultasSGITClick(self, widget):
+		self.ventanaNuevoAAcoge.show()
+		self.ventanaNuevoAAcoge.set_title("Secretariado Gitano")
+		self.btAceptarConsultaAcoge.set_label("Aceptar")
+		self.fixed6.move(self.btAceptarConsultaAcoge, 140, 0)
+		self.btEliminarConsultaAcoge.set_visible(False)
+		self.tbServicio.set_text("")
+		self.tbTecnico.set_text("")
+		self.tbFechaConsulta.set_text("")
+		textbuffer = self.tbObserv.get_buffer()
+		textbuffer.set_text("")
 
+	def btDetalleSGITClick(self, widget):
+		self.ventanaNuevoAAcoge.show()
+		self.ventanaNuevoAAcoge.set_title("Secretariado Gitano")
+		self.btAceptarConsultaAcoge.set_label("Actualizar")
+		self.fixed6.move(self.btAceptarConsultaAcoge, 140, 0)
+		self.btEliminarConsultaAcoge.set_visible(True)
+		self.fixed6.move(self.btEliminarConsultaAcoge, 250, 0)
 
+		tv = self.tvConsultasSGIT
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idsgit = model[treeiter][3]
+						
+		c = conexion.db
+		cursor = c.cursor()
 
+		queryDetalleConsultaSGIT = "SELECT * FROM SGIT WHERE IdSGit = \'" + idsgit + "\'"
 
+		try:
+			cursor.execute(queryDetalleConsultaSGIT)
+		except Exception, e:
+			raise e
 
+		resultadoDetalleConsultaSGIT = cursor.fetchone()
 
+		if resultadoDetalleConsultaSGIT != None:
+			self.tbServicio.set_text(resultadoDetalleConsultaSGIT[1])
+			self.tbTecnico.set_text(resultadoDetalleConsultaSGIT[2])
+			
+			dateFormat = resultadoDetalleConsultaSGIT[3].strftime("%d/%m/%Y") 
+			self.tbFechaConsulta.set_text(dateFormat)
 
+			textbuffer = self.tbObserv.get_buffer() 
+ 		 	textbuffer.set_text(str(resultadoDetalleConsultaSGIT[4]))
+			
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
 
 	def btNuevoExtranjClick(self, widget):
 		self.ventanaNuevoEmpleoExtranj.show()
+		self.btAceptarEmpresaExtranj.set_label("Aceptar")
+		self.fixed9.move(self.btAceptarEmpresaExtranj, 140, 0)
+		self.btEliminarEmpresaExtranj.set_visible(False)
+		self.tbEmpresa.set_text("")
+		self.tbFechaInicioEmpresa.set_text("")
+		self.tbDuracion.set_text("")
+
+	def btAceptarEmpresaExtranjClick(self, widget):
+		empr = self.tbEmpresa.get_text()
+		
+		fIn = self.tbFechaInicioEmpresa.get_text()
+		day = datetime.datetime.strptime(fIn, '%d/%m/%Y')
+		fInicioEmpresa = day.strftime('%Y-%m-%d')
+		
+		dur = self.tbDuracion.get_text()
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		if self.btAceptarEmpresaExtranj.get_label() == "Aceptar":
+			
+			queryObtenerIdExtranj = "SELECT IdExtranjeria FROM EXTRANJERIA WHERE IdMenor = \'" + idmenor + "\'"
+
+			try:
+				cursor.execute(queryObtenerIdExtranj)
+			except Exception, e:
+				raise e
+				
+			comprobacion = cursor.fetchone()
+
+			if comprobacion != None:
+		
+				queryInsertarEmpresaExtranjeria = "INSERT INTO EXTRANJERIA_EMPRESA (NombreEEmpresa, FechaInicio, DuracionContrato, IdExtranjeria) VALUES (\'" + empr + "\', '" + fInicioEmpresa + "\', '" + dur + "\', '" + str(comprobacion[0]) + "\')" 
+
+				try:
+					cursor.execute(queryInsertarEmpresaExtranjeria)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Empleo registrado con éxito")
+					self.btMsgBoxAceptar.set_label("         Cerrar         ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("         Cerrar         ")
+
+				self.cargartvExtranjeria()
+			else:
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Registre primero el permiso de trabajo")
+				self.btMsgBoxAceptar.set_label("Cerrar")
+			
+		elif self.btAceptarEmpresaExtranj.get_label() == "Actualizar":
+			tv = self.tvEmpleos
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				ideextranj = model[treeiter][2]
+			
+			c = conexion.db
+			cursor = c.cursor()
+		
+			queryActualizarEmpleoExtranj = "UPDATE EXTRANJERIA_EMPRESA SET NombreEEmpresa = \'" + empr + "\', FechaInicio = \'" + fInicioEmpresa + "\', DuracionContrato = \'" + dur + "\' WHERE IdEEmpresa = \'" + ideextranj + "\'"
+
+			try:
+				cursor.execute(queryActualizarEmpleoExtranj)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Empleo actualizado con éxito")
+				self.btMsgBoxAceptar.set_label("         Cerrar         ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La actualización ha fallado")
+				self.btMsgBoxAceptar.set_label("         Cerrar         ")
+
+			self.cargartvExtranjeria()
+			
+		cursor.close()
+
+	def btDetalleEmpleoClick(self, widget):
+		self.ventanaNuevoEmpleoExtranj.show()
+		self.btAceptarEmpresaExtranj.set_label("Actualizar")
+		self.fixed9.move(self.btAceptarEmpresaExtranj, 140, 0)
+		self.btEliminarEmpresaExtranj.set_visible(True)
+		self.fixed9.move(self.btEliminarEmpresaExtranj, 245, 0)
+
+		tv = self.tvEmpleos
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			ideextranj = model[treeiter][2]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetalleEmpleoExtranj = "SELECT * FROM EXTRANJERIA_EMPRESA WHERE IdEEmpresa = \'" + ideextranj + "\'"
+
+		try:
+			cursor.execute(queryDetalleEmpleoExtranj)
+		except Exception, e:
+			raise e
+
+		resultadoDetalleEmpleoExtranj = cursor.fetchone()
+
+		if resultadoDetalleEmpleoExtranj != None:
+			self.tbEmpresa.set_text(resultadoDetalleEmpleoExtranj[1])
+
+			dateFormat = resultadoDetalleEmpleoExtranj[2].strftime("%d/%m/%Y") 
+			self.tbFechaInicioEmpresa.set_text(dateFormat)
+
+			self.tbDuracion.set_text(resultadoDetalleEmpleoExtranj[3])
+			
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btEliminarEmpresaExtranjClick(self, widget):
+		tv = self.tvEmpleos
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			ideextranj = model[treeiter][2]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryBorrarEmpleoExtranj = "DELETE FROM EXTRANJERIA_EMPRESA WHERE IdEEmpresa = \'" + ideextranj + "\'"
+		
+		try:
+			cursor.execute(queryBorrarEmpleoExtranj)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Eliminado con éxito")
+			self.btMsgBoxAceptar.set_label("         Cerrar         ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("La eliminación ha fallado")
+			self.btMsgBoxAceptar.set_label("         Cerrar         ")
+
+		self.cargartvExtranjeria()
+
+		cursor.close()
 
 	def empresaExtranjDelete(self, widget, data=None):
 		self.ventanaNuevoEmpleoExtranj.hide()
@@ -2978,6 +3515,176 @@ class ficha_ts:
 
 	def btPropExtutClick(self, widget):
 		self.ventanaPropExtut.show()
+		self.btAceptarPropuesta.set_label("Aceptar")
+		self.fixed11.move(self.btAceptarPropuesta, 135, 0)
+		self.btEliminarPropuesta.set_visible(False)
+		self.cargarcbxEntidadExtut()
+	
+	def btAceptarPropuestaClick(self, widget):
+		enti = self.cbxEntidadExtut.get_active_text()
+		f = self.tbFechaEntidad.get_text()
+		day = datetime.datetime.strptime(f, '%d/%m/%Y')
+		fech = day.strftime('%Y-%m-%d')
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		if self.btAceptarPropuesta.get_label() == "Aceptar":	
+			queryObtenerIdExTEntidad = "SELECT IdExTEntidad FROM EXTUT_ENTIDADES WHERE Nombre = \'" + enti + "\'"
+
+
+			try:
+				cursor.execute(queryObtenerIdExTEntidad)
+			except Exception, e:
+				raise e
+				
+			comprobacion = cursor.fetchone()
+
+			if comprobacion != None:
+		
+				queryInsertarExTut = "INSERT INTO EXTUT (IdExTEntidad, IdMenor) VALUES (\'" + str(comprobacion[0]) + "\', '" + idmenor + "\')" 
+
+				try:
+					cursor.execute(queryInsertarExTut)
+					c.commit()
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("           Cerrar           ")
+
+				queryObtenerIdExtut = "SELECT IdExtut FROM EXTUT WHERE IdMenor = \'" + idmenor + "\' AND IdExTEntidad = \'" + str(comprobacion[0]) + "\'" 
+
+				try:
+					cursor.execute(queryObtenerIdExtut)
+				except Exception, e:
+					raise e
+
+				resultado = cursor.fetchone()
+
+				if resultado != None:
+					queryInsertarPropuestaExtut = "INSERT INTO EXTUT_PROPUESTAS (FechaPropuesta, IdExtut) VALUES (\'" + fech + "\', '" + str(resultado[0]) + "\')"
+					try:
+						cursor.execute(queryInsertarPropuestaExtut)
+						c.commit()
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Propuesta registrada con éxito")
+						self.btMsgBoxAceptar.set_label("           Cerrar           ")
+					except Exception, e:
+						c.rollback()
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Fallo en el registro")
+						self.btMsgBoxAceptar.set_label("           Cerrar           ")
+					
+					self.cargartvPropuestasExtut()
+				else:
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro.")
+					self.btMsgBoxAceptar.set_label("           Cerrar           ")
+			else:
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Fallo al obtener la entidad")
+				self.btMsgBoxAceptar.set_label("Cerrar")
+
+		elif self.btAceptarPropuesta.get_label() == "Actualizar":
+			tv = self.tvPropuestas
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idprop = model[treeiter][2]
+
+			c = conexion.db
+			cursor = c.cursor()
+		
+			queryActualizarPropuesta = "UPDATE EXTUT_PROPUESTAS SET FechaPropuesta = \'" + fech + "\' WHERE IdProp = \'" + idprop + "\'"
+
+			try:
+				cursor.execute(queryActualizarPropuesta)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Fecha actualizada con éxito")
+				self.btMsgBoxAceptar.set_label("           Cerrar           ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La actualización ha fallado")
+				self.btMsgBoxAceptar.set_label("           Cerrar           ")
+
+			self.cargartvPropuestasExtut()
+
+		cursor.close()
+
+	def btDetallePropuestaClick(self, widget):
+		self.ventanaPropExtut.show()
+		self.btAceptarPropuesta.set_label("Actualizar")
+		self.fixed11.move(self.btAceptarPropuesta, 135, 0)
+		self.btEliminarPropuesta.set_visible(True)
+		self.fixed11.move(self.btEliminarPropuesta, 240, 0)
+		self.cargarcbxEntidadExtut()
+
+		tv = self.tvPropuestas
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idprop = model[treeiter][2]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetallePropuesta = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_PROPUESTAS.FechaPropuesta FROM EXTUT, EXTUT_ENTIDADES, EXTUT_PROPUESTAS WHERE EXTUT_PROPUESTAS.IdProp = \'" + idprop + "\' AND EXTUT.IdExtut = EXTUT_PROPUESTAS.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad"
+
+		try:
+			cursor.execute(queryDetallePropuesta)
+		except Exception, e:
+			raise e
+
+		resultadoDetallePropuesta = cursor.fetchone()
+
+		if resultadoDetallePropuesta != None:
+		
+			dateFormat = resultadoDetallePropuesta[1].strftime("%d/%m/%Y") 
+			self.tbFechaEntidad.set_text(dateFormat)
+
+			for posicion, elemento in enumerate(self.lsEntidadExtut):
+				f = elemento[0]
+				if f == str(resultadoDetallePropuesta[0]):
+					self.cbxEntidadExtut.set_active(posicion)
+
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btEliminarPropuestaClick(self, widget):
+		tv = self.tvPropuestas
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idprop = model[treeiter][2]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryBorrarPropuesta = "DELETE FROM EXTUT_PROPUESTAS WHERE IdProp = \'" + idprop + "\'"
+		
+		try:
+			cursor.execute(queryBorrarPropuesta)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Eliminada con éxito")
+			self.btMsgBoxAceptar.set_label("           Cerrar           ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("La eliminación ha fallado")
+			self.btMsgBoxAceptar.set_label("           Cerrar           ")
+
+		self.cargartvPropuestasExtut()
+
+		cursor.close()
+
 
 	def propuestaExTutDelete(self, widget, data=None):
 		self.ventanaPropExtut.hide()
@@ -2992,6 +3699,63 @@ class ficha_ts:
 
 	def empresaExTutClick(self, widget):
 		self.ventanaEmpresaExTut.show()
+		self.btAceptarEntidadExtut.set_label("Aceptar")
+		self.fixed10.move(self.btAceptarEntidadExtut, 140, 0)
+		self.btEliminarEntidadExtut.set_visible(False)
+		self.tbEntidad.set_text("")
+		self.tbDireccionEntidad.set_text("")
+		self.tbTelefonoEntidad.set_text("")
+		self.tbMailEntidad.set_text("")
+
+	def btAceptarEntidadExtut(self, widget):
+		entity = self.tbEntidad.get_text()
+		dirEntity = self.tbDireccionEntidad.get_text()
+		tlfnEntity = self.tbTelefonoEntidad.get_text()
+		mailEntity = self.tbMailEntidad.get_text()
+
+		queryInsertarEntidad = "INSERT INTO EXTUT_ENTIDADES (Nombre, Direccion, Telefono, Mail) VALUES (\'" + entity + "\', '" + dirEntity + "\', '" + tlfnEntity + "\', '" + mailEntity + "\')" 
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryInsertarEntidad)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Entidad grabada con éxito")
+			self.btMsgBoxAceptar.set_label("          Cerrar          ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("El registro ha fallado")
+			self.btMsgBoxAceptar.set_label("          Cerrar          ")
+
+		cursor.close()
+
+	def cargarcbxEntidadExtut(self):
+		self.lsEntidadExtut.clear()
+
+		queryEntidades = "SELECT Nombre FROM EXTUT_ENTIDADES ORDER BY Nombre ASC"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryEntidades)
+		except Exception, e:
+			raise e
+
+		resultado = cursor. fetchall()
+
+		if len(resultado) > 0:
+			for i in range(len(resultado)):
+				self.lsEntidadExtut.append(resultado[i])
+		else:
+			self.lsEntidadExtut.append(row=None)
+
+
+		cursor.close()
+
 
 	def empresaExTutDelete(self, widget, data=None):
 		self.ventanaEmpresaExTut.hide()
@@ -3024,6 +3788,18 @@ class ficha_ts:
 		elif self.btMsgBoxAceptar.get_label() == "        Cerrar        ":
 			self.msgbox.hide()
 			self.ventanaPracticaLabora.hide()
+		elif self.btMsgBoxAceptar.get_label() == "         Cerrar         ":
+			self.msgbox.hide()
+			self.ventanaNuevoEmpleoExtranj.hide()
+		elif self.btMsgBoxAceptar.get_label() == "          Cerrar          ":
+			self.msgbox.hide()
+			self.ventanaEmpresaExTut.hide()
+			self.cargarcbxEntidadExtut()
+		elif self.btMsgBoxAceptar.get_label() == "           Cerrar           ":
+			self.msgbox.hide()
+			self.ventanaPropExtut.hide()
+			
+
 
 
 		
