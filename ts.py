@@ -195,6 +195,9 @@ class ficha_ts:
 		self.tbMailEmpresaPractica = builder.get_object("tbMailEmpresaPractica")
 		self.tbContactoEmpresaPractica = builder.get_object("tbContactoEmpresaPractica")
 		self.cbxContrato = builder.get_object("cbxContrato")
+		self.btAceptarPractica = builder.get_object("btAceptarPractica")
+		self.btEliminarPractica = builder.get_object("btEliminarPractica")
+		self.fixed8 = builder.get_object("fixed8")
 
 		#empresaExtranj
 		self.ventanaNuevoEmpleoExtranj = builder.get_object("empresaExtranj")
@@ -246,6 +249,7 @@ class ficha_ts:
 		self.lsTecReg = builder.get_object("lsTecReg")
 		self.lstvAAcoge = builder.get_object("lstvAAcoge")
 		self.lstvCursosLabora = builder.get_object("lstvCursosLabora")
+		self.lstvPracticasLabora = builder.get_object("lstvPracticasLabora")
 
 		#aplicar cambio de color a los fondos del notebook
 		self.acambiar8.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
@@ -318,7 +322,10 @@ class ficha_ts:
 				"on_btSelecOrientaLabora_clicked": self.btSelecOrientaLaboraClick,
 				"on_btAceptarCurso_clicked": self.btAceptarCursoClick,
 				"on_btDetalleCursoLabora_clicked": self.btDetalleCursoLaboraClick,
-				"on_btEliminarCurso_clicked": self.btEliminarCursoClick
+				"on_btEliminarCurso_clicked": self.btEliminarCursoClick,
+				"on_btAceptarPractica_clicked": self.btAceptarPracticaClick,
+				"on_btDetallePracticaLabora_clicked": self.btDetallePracticaClick,
+				"on_btEliminarPractica_clicked": self.btEliminarPracticaClick
 				} 
 		builder.connect_signals(dict)
 
@@ -547,6 +554,7 @@ class ficha_ts:
 		self.cargartvCitasOrienta()
 		self.cargartvConsultasAACoge()
 		self.cargartvCursosLabora()
+		self.cargartvPracticasLabora()
 		
 
 		cursor.close()	
@@ -797,6 +805,45 @@ class ficha_ts:
 			if len(resultado) != 0:
 				for i in range(len(resultado)):
 					self.lstvCursosLabora.append(resultado[i])
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Fallo al recuperar los datos")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def cargartvPracticasLabora(self):
+		self.lstvPracticasLabora.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryObtenerIdLabora = "SELECT IdLabora FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
+
+		try:
+			cursor.execute(queryObtenerIdLabora)
+		except Exception, e:
+			raise e
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Fallo al recuperar los datos")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		comprobacion = cursor.fetchone()
+			
+		
+		if comprobacion != None:
+			querytvConsultarPracticaLabora = "SELECT LABORA_PRACTICAS.FechaInicio, LABORA_PRACTICAS.Empresa, LABORA_PRACTICAS.IdPractica FROM LABORA, LABORA_PRACTICAS WHERE LABORA.IdMenor = \'" + idmenor + "\' AND LABORA.IdLabora = \'" + str(comprobacion[0]) + "\' AND LABORA.IdLabora = LABORA_PRACTICAS.IdLabora ORDER BY LABORA_PRACTICAS.FechaInicio DESC"
+
+			try:
+				cursor.execute(querytvConsultarPracticaLabora)
+			except Exception, e:
+				raise e
+
+			resultado = cursor.fetchall()
+
+			if len(resultado) != 0:
+				for i in range(len(resultado)):
+					self.lstvPracticasLabora.append(resultado[i])
 		else:
 			self.msgbox.show()
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
@@ -2722,6 +2769,185 @@ class ficha_ts:
 
 	def btPracticaLaboraClick(self, widget):
 		self.ventanaPracticaLabora.show()
+		self.btAceptarPractica.set_label("Aceptar")
+		self.fixed8.move(self.btAceptarPractica, 160, 0)
+		self.btEliminarPractica.set_visible(False)
+		self.tbInicioPractica.set_text("")
+		self.tbFinPractica.set_text("")
+		self.tbEmpresaPractica.set_text("")
+		self.tbDireccionEmpresaPractica.set_text("")
+		self.tbTelefonoEmpresaPractica.set_text("")
+		self.tbMailEmpresaPractica.set_text("")
+		self.tbContactoEmpresaPractica.set_text("")
+		self.cbxContrato.set_active(0)
+
+	def btAceptarPracticaClick(self, widget):
+		fIP = self.tbInicioPractica.get_text()
+		day = datetime.datetime.strptime(fIP, '%d/%m/%Y')
+		fechaIPractica = day.strftime('%Y-%m-%d')
+
+		fFP = self.tbFinPractica.get_text()
+		day2 = datetime.datetime.strptime(fFP, '%d/%m/%Y')
+		fechaFPractica = day2.strftime('%Y-%m-%d')
+
+		empresa = self.tbEmpresaPractica.get_text()
+		dirEmpresa = self.tbDireccionEmpresaPractica.get_text()
+		tlfEmpresa = str(self.tbTelefonoEmpresaPractica.get_text())
+		mailEmpresa = self.tbMailEmpresaPractica.get_text()
+		contacEmpresa = self.tbContactoEmpresaPractica.get_text()
+		contrato = self.cbxContrato.get_active_text()
+
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		if self.btAceptarPractica.get_label() == "Aceptar":
+			
+			queryObtenerIdLabora = "SELECT IdLabora FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
+
+			try:
+				cursor.execute(queryObtenerIdLabora)
+			except Exception, e:
+				raise e
+				
+			comprobacion = cursor.fetchone()
+
+			if comprobacion != None:
+		
+				queryInsertarPracticaLabora = "INSERT INTO LABORA_PRACTICAS (FechaInicio, FechaFin, Empresa, DireccionEmpresa, TelefonoEmpresa, ContactoEmpresa, ContratoTrabajo, MailEmpresa, IdLabora) VALUES (\'" + fechaIPractica + "\', '" + fechaFPractica + "\', '" + empresa + "\', '" + dirEmpresa + "\', '" + tlfEmpresa + "\', '" + contacEmpresa + "\', '" + contrato + "\', '" + mailEmpresa + "\', '" + str(comprobacion[0]) + "\')" 
+
+				try:
+					cursor.execute(queryInsertarPracticaLabora)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Práctica registrado con éxito")
+					self.btMsgBoxAceptar.set_label("        Cerrar        ")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro")
+					self.btMsgBoxAceptar.set_label("        Cerrar        ")
+
+				self.cargartvPracticasLabora()
+			else:
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Registre primero un orientador de referencia")
+				self.btMsgBoxAceptar.set_label("Cerrar")
+			
+		elif self.btAceptarPractica.get_label() == "Actualizar":
+			tv = self.tvPracticasLabora
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idpracticalabora = model[treeiter][2]
+			
+			c = conexion.db
+			cursor = c.cursor()
+		
+			queryActualizarPracticaLabora = "UPDATE LABORA_PRACTICAS SET FechaInicio = \'" + fechaIPractica + "\', FechaFin = \'" + fechaFPractica + "\', Empresa = \'" + empresa + "\', DireccionEmpresa = \'" + dirEmpresa + "\', TelefonoEmpresa = \'" + tlfEmpresa + "\', ContactoEmpresa = \'" + contacEmpresa + "\', ContratoTrabajo = \'" + contrato + "\', MailEmpresa = \'" + mailEmpresa + "\' WHERE IdPractica = \'" + idpracticalabora + "\'"
+
+			try:
+				cursor.execute(queryActualizarPracticaLabora)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Práctica actualizada con éxito")
+				self.btMsgBoxAceptar.set_label("        Cerrar        ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La actualización ha fallado")
+				self.btMsgBoxAceptar.set_label("        Cerrar        ")
+
+			self.cargartvPracticasLabora()
+			
+		cursor.close()
+
+	def btDetallePracticaClick(self, widget):
+		self.ventanaPracticaLabora.show()
+		self.btAceptarPractica.set_label("Actualizar")
+		self.fixed8.move(self.btAceptarPractica, 130, 0)
+		self.btEliminarPractica.set_visible(True)
+		self.fixed8.move(self.btEliminarPractica, 235, 0)
+
+		tv = self.tvPracticasLabora
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idpracticalabora = model[treeiter][2]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetallePracticaLabora = "SELECT * FROM LABORA_PRACTICAS WHERE IdPractica = \'" + idpracticalabora + "\'"
+
+		try:
+			cursor.execute(queryDetallePracticaLabora)
+		except Exception, e:
+			raise e
+
+		resultadoDetallePracticaLabora = cursor.fetchone()
+
+		if resultadoDetallePracticaLabora != None:
+			dateFormat = resultadoDetallePracticaLabora[1].strftime("%d/%m/%Y") 
+			self.tbInicioPractica.set_text(dateFormat)
+
+			dateFormat2 = resultadoDetallePracticaLabora[2].strftime("%d/%m/%Y") 
+			self.tbFinPractica.set_text(dateFormat2)
+
+			self.tbEmpresaPractica.set_text(resultadoDetallePracticaLabora[3])
+			self.tbDireccionEmpresaPractica.set_text(resultadoDetallePracticaLabora[4])
+			self.tbTelefonoEmpresaPractica.set_text(str(resultadoDetallePracticaLabora[5]))
+			self.tbMailEmpresaPractica.set_text(resultadoDetallePracticaLabora[8])
+			self.tbContactoEmpresaPractica.set_text(resultadoDetallePracticaLabora[6])
+			self.cbxContrato.set_active(0)
+
+ 		 	for posicion, elemento in enumerate(self.lsPHC):
+ 		 		f = elemento[0]
+ 		 		if f == str(resultadoDetallePracticaLabora[7]):
+ 		 			self.cbxContrato.set_active(posicion)
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btEliminarPracticaClick(self, widget):
+		tv = self.tvPracticasLabora
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idpracticalabora = model[treeiter][2]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryBorrarPracticaLabora = "DELETE FROM LABORA_PRACTICAS WHERE IdPractica = \'" + idpracticalabora + "\'"
+		
+		try:
+			cursor.execute(queryBorrarPracticaLabora)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Eliminada con éxito")
+			self.btMsgBoxAceptar.set_label("        Cerrar        ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("La eliminación ha fallado")
+			self.btMsgBoxAceptar.set_label("        Cerrar        ")
+
+		self.cargartvPracticasLabora()
+
+		cursor.close()
+
+
+
+
+
+
+
+
+
 
 	def practicaLaboraDelete(self, widget, data=None):
 		self.ventanaPracticaLabora.hide()
@@ -2795,6 +3021,9 @@ class ficha_ts:
 		elif self.btMsgBoxAceptar.get_label() == "       Cerrar       ":
 			self.msgbox.hide()
 			self.ventanaCursoLabora.hide()
+		elif self.btMsgBoxAceptar.get_label() == "        Cerrar        ":
+			self.msgbox.hide()
+			self.ventanaPracticaLabora.hide()
 
 
 		
