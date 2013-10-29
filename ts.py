@@ -222,6 +222,9 @@ class ficha_ts:
 		self.cbxTipoReunion = builder.get_object("cbxTipoReunion")
 		self.tbFechaReunion = builder.get_object("tbFechaReunion")
 		self.tbAcuerdosReunion = builder.get_object("tbAcuerdosReunion")
+		self.btAceptarReunion = builder.get_object("btAceptarReunion")
+		self.btEliminarReunion = builder.get_object("btEliminarReunion")
+		self.fixed12 = builder.get_object("fixed12")
 
 		#empresaExtut
 		self.ventanaEmpresaExTut = builder.get_object("empresaExTut")
@@ -350,7 +353,8 @@ class ficha_ts:
 				"on_btAceptarEntidadExtut_clicked": self.btAceptarEntidadExtut,
 				"on_btAceptarPropuesta_clicked": self.btAceptarPropuestaClick,
 				"on_btDetallePropuesta_clicked": self.btDetallePropuestaClick,
-				"on_btEliminarPropuesta_clicked": self.btEliminarPropuestaClick
+				"on_btEliminarPropuesta_clicked": self.btEliminarPropuestaClick,
+				"on_btAceptarReunion_clicked": self.btAceptarReunionExtutClick
 				} 
 		builder.connect_signals(dict)
 
@@ -2809,7 +2813,6 @@ class ficha_ts:
 		c = conexion.db
 		cursor = c.cursor()
 
-
 		if self.ventanaNuevoAAcoge.get_title() == "Andalucía Acoge":
 			tv = self.tvConsultasAAcoge
 			selection = tv.get_selection()
@@ -3519,6 +3522,7 @@ class ficha_ts:
 		self.fixed11.move(self.btAceptarPropuesta, 135, 0)
 		self.btEliminarPropuesta.set_visible(False)
 		self.cargarcbxEntidadExtut()
+		self.tbFechaEntidad.set_text("")
 	
 	def btAceptarPropuestaClick(self, widget):
 		enti = self.cbxEntidadExtut.get_active_text()
@@ -3530,8 +3534,7 @@ class ficha_ts:
 		cursor = c.cursor()
 
 		if self.btAceptarPropuesta.get_label() == "Aceptar":	
-			queryObtenerIdExTEntidad = "SELECT IdExTEntidad FROM EXTUT_ENTIDADES WHERE Nombre = \'" + enti + "\'"
-
+			queryObtenerIdExTEntidad = "SELECT EXTUT_ENTIDADES.IdExTEntidad FROM EXTUT, EXTUT_ENTIDADES WHERE EXTUT_ENTIDADES.Nombre = \'" + enti + "\' AND EXTUT.IdMenor = \'" + idmenor + "\' AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad"
 
 			try:
 				cursor.execute(queryObtenerIdExTEntidad)
@@ -3542,17 +3545,6 @@ class ficha_ts:
 
 			if comprobacion != None:
 		
-				queryInsertarExTut = "INSERT INTO EXTUT (IdExTEntidad, IdMenor) VALUES (\'" + str(comprobacion[0]) + "\', '" + idmenor + "\')" 
-
-				try:
-					cursor.execute(queryInsertarExTut)
-					c.commit()
-				except Exception, e:
-					c.rollback()
-					self.msgbox.show()
-					self.lbMsgBox.set_text("Fallo en el registro")
-					self.btMsgBoxAceptar.set_label("           Cerrar           ")
-
 				queryObtenerIdExtut = "SELECT IdExtut FROM EXTUT WHERE IdMenor = \'" + idmenor + "\' AND IdExTEntidad = \'" + str(comprobacion[0]) + "\'" 
 
 				try:
@@ -3581,11 +3573,62 @@ class ficha_ts:
 					self.msgbox.show()
 					self.lbMsgBox.set_text("Fallo en el registro.")
 					self.btMsgBoxAceptar.set_label("           Cerrar           ")
+		
 			else:
-				self.msgbox.show()
-				self.lbMsgBox.set_text("Fallo al obtener la entidad")
-				self.btMsgBoxAceptar.set_label("Cerrar")
+				 queryObtenerIdExTEntidad = "SELECT IdExTEntidad FROM EXTUT_ENTIDADES WHERE Nombre = \'" + enti + "\'"
+				 
+				 try:
+				 	cursor.execute(queryObtenerIdExTEntidad)
+				 except Exception, e:
+				 	raise e
 
+				 comprobacion2 = cursor.fetchone()
+
+				 if comprobacion2 != None:
+				 	queryInsertarExTut = "INSERT INTO EXTUT (IdExTEntidad, IdMenor) VALUES (\'" + str(comprobacion2[0]) + "\', '" + idmenor + "\')" 
+				 	try:
+						cursor.execute(queryInsertarExTut)
+						c.commit()
+					except Exception, e:
+						c.rollback()
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Fallo en el registro")
+						self.btMsgBoxAceptar.set_label("           Cerrar           ")
+
+					queryObtenerIdExtut = "SELECT IdExtut FROM EXTUT WHERE IdMenor = \'" + idmenor + "\' AND IdExTEntidad = \'" + str(comprobacion2[0]) + "\'" 
+
+					try:
+						cursor.execute(queryObtenerIdExtut)
+					except Exception, e:
+						raise e
+
+					resultado = cursor.fetchone()
+
+					if resultado != None:
+						queryInsertarPropuestaExtut = "INSERT INTO EXTUT_PROPUESTAS (FechaPropuesta, IdExtut) VALUES (\'" + fech + "\', '" + str(resultado[0]) + "\')"
+						try:
+							cursor.execute(queryInsertarPropuestaExtut)
+							c.commit()
+							self.msgbox.show()
+							self.lbMsgBox.set_text("Propuesta registrada con éxito")
+							self.btMsgBoxAceptar.set_label("           Cerrar           ")
+						except Exception, e:
+							c.rollback()
+							self.msgbox.show()
+							self.lbMsgBox.set_text("Fallo en el registro")
+							self.btMsgBoxAceptar.set_label("           Cerrar           ")
+						
+						self.cargartvPropuestasExtut()
+					else:
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Fallo en el registro.")
+						self.btMsgBoxAceptar.set_label("           Cerrar           ")
+
+				 else:
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo al obtener la entidad")
+					self.btMsgBoxAceptar.set_label("Cerrar")
+				
 		elif self.btAceptarPropuesta.get_label() == "Actualizar":
 			tv = self.tvPropuestas
 			selection = tv.get_selection()
@@ -3692,6 +3735,28 @@ class ficha_ts:
 
 	def btReunionExtutClick(self, widget):
 		self.ventanaReunionesExtut.show()
+		self.btAceptarReunion.set_label("Aceptar")
+		self.fixed12.move(self.btAceptarReunion, 150, 0)
+		self.btEliminarReunion.set_visible(False)
+		self.cargarcbxEntidadExtut()
+
+	def btAceptarReunionExtutClick(self, widget):
+		pass
+		# entid = self.cbxEntidadReunion.get_active_text()
+		# tip = self.cbxTipoReunion.get_active_text()
+		# f = self.tbFechaReunion.get_text()
+		# day = datetime.datetime.strptime(f, '%d/%m/%Y')
+		# fech = day.strftime('%Y-%m-%d')
+
+		# aR = self.tbAcuerdosReunion.get_buffer()
+		# acuerR = aR.get_text(*aR.get_bounds())
+
+		# c = conexion.db
+		# cursor = c.cursor()
+
+		
+		# cursor.close()
+
 
 	def reunionesExTutDelete(self, widget, data=None):
 		self.ventanaReunionesExtut.hide()
