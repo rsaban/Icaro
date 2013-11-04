@@ -267,6 +267,8 @@ class ficha_ts:
 		self.lstvExtranjeria = builder.get_object("lstvExtranjeria")
 		self.lsEntidadExtut = builder.get_object("lsEntidadExtut")
 		self.lstvPropExtut = builder.get_object("lstvPropExtut")
+		self.lsTipoReunionExtut = builder.get_object("lsTipoReunionExtut")
+		self.lstvReunionesExtut = builder.get_object("lstvReunionesExtut")
 
 		#aplicar cambio de color a los fondos del notebook
 		self.acambiar8.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
@@ -354,7 +356,9 @@ class ficha_ts:
 				"on_btAceptarPropuesta_clicked": self.btAceptarPropuestaClick,
 				"on_btDetallePropuesta_clicked": self.btDetallePropuestaClick,
 				"on_btEliminarPropuesta_clicked": self.btEliminarPropuestaClick,
-				"on_btAceptarReunion_clicked": self.btAceptarReunionExtutClick
+				"on_btAceptarReunion_clicked": self.btAceptarReunionExtutClick,
+				"on_btDetalleReunion_clicked": self.btDetalleReunionClick,
+				"on_btEliminarReunion_clicked": self.btEliminarReunionClick
 				} 
 		builder.connect_signals(dict)
 
@@ -588,6 +592,7 @@ class ficha_ts:
 		self.cargartvConsultasSGIT()
 		self.cargartvExtranjeria()
 		self.cargartvPropuestasExtut()
+		self.cargartvReunionesExtut()
 
 		cursor.close()	
 
@@ -988,6 +993,27 @@ class ficha_ts:
 
 		cursor.close()	
 
+	def cargartvReunionesExtut(self):
+		self.lstvReunionesExtut.clear()
+
+		c = conexion.db
+		cursor = c.cursor()
+		
+		querytvReuniones = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_REUNIONES.FechaReunion, EXTUT_REUNIONES.TipoReunion, EXTUT_REUNIONES.IdReunion FROM EXTUT, EXTUT_ENTIDADES, EXTUT_REUNIONES  WHERE EXTUT.IdMenor = \'" + idmenor + "\' AND EXTUT.IdExtut = EXTUT_REUNIONES.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad ORDER BY EXTUT_REUNIONES.FechaReunion DESC"
+
+		try:
+			cursor.execute(querytvReuniones)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lstvReunionesExtut.append(resultado[i])
+		
+
+		cursor.close()	
 
 	def btAceptarClick(self, widget):#Este es el boton Acutalizar Pestaña
 		paginaActual = self.notebook1.get_current_page()
@@ -3728,7 +3754,6 @@ class ficha_ts:
 
 		cursor.close()
 
-
 	def propuestaExTutDelete(self, widget, data=None):
 		self.ventanaPropExtut.hide()
 		return True
@@ -3739,24 +3764,147 @@ class ficha_ts:
 		self.fixed12.move(self.btAceptarReunion, 150, 0)
 		self.btEliminarReunion.set_visible(False)
 		self.cargarcbxEntidadExtut()
-
-	def btAceptarReunionExtutClick(self, widget):
-		pass
-		# entid = self.cbxEntidadReunion.get_active_text()
-		# tip = self.cbxTipoReunion.get_active_text()
-		# f = self.tbFechaReunion.get_text()
-		# day = datetime.datetime.strptime(f, '%d/%m/%Y')
-		# fech = day.strftime('%Y-%m-%d')
-
-		# aR = self.tbAcuerdosReunion.get_buffer()
-		# acuerR = aR.get_text(*aR.get_bounds())
-
-		# c = conexion.db
-		# cursor = c.cursor()
-
+		self.tbFechaReunion.set_text("")
+		textbuffer = self.tbAcuerdosReunion.get_buffer()
+		textbuffer.set_text("")
+		self.cbxTipoReunion.set_active(0)
 		
-		# cursor.close()
+	def btAceptarReunionExtutClick(self, widget):
+		entid = self.cbxEntidadReunion.get_active_text()
+		tip = self.cbxTipoReunion.get_active_text()
+		f = self.tbFechaReunion.get_text()
+		day = datetime.datetime.strptime(f, '%d/%m/%Y')
+		fech = day.strftime('%Y-%m-%d')
 
+		aR = self.tbAcuerdosReunion.get_buffer()
+		acuerR = aR.get_text(*aR.get_bounds())
+
+		c = conexion.db
+		cursor = c.cursor()
+		
+		if self.btAceptarReunion.get_label() == "Aceptar":	
+			queryObtenerIdExTEntidad = "SELECT EXTUT_ENTIDADES.IdExTEntidad FROM EXTUT, EXTUT_ENTIDADES WHERE EXTUT_ENTIDADES.Nombre = \'" + entid + "\' AND EXTUT.IdMenor = \'" + idmenor + "\' AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad"
+
+			try:
+				cursor.execute(queryObtenerIdExTEntidad)
+			except Exception, e:
+				raise e
+				
+			comprobacion = cursor.fetchone()
+
+			if comprobacion != None:
+		
+				queryObtenerIdExtut = "SELECT IdExtut FROM EXTUT WHERE IdMenor = \'" + idmenor + "\' AND IdExTEntidad = \'" + str(comprobacion[0]) + "\'" 
+
+				try:
+					cursor.execute(queryObtenerIdExtut)
+				except Exception, e:
+					raise e
+
+				resultado = cursor.fetchone()
+
+				if resultado != None:
+					queryInsertarReunionExtut = "INSERT INTO EXTUT_REUNIONES (TipoReunion, FechaReunion, AcuerdosReunion, IdExtut) VALUES (\'" + tip + "\', '" + fech + "\', '" + acuerR + "\', '" + str(resultado[0]) + "\')"
+					try:
+						cursor.execute(queryInsertarReunionExtut)
+						c.commit()
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Reunión registrada con éxito")
+						self.btMsgBoxAceptar.set_label("            Cerrar            ")
+					except Exception, e:
+						c.rollback()
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Fallo en el registro")
+						self.btMsgBoxAceptar.set_label("            Cerrar            ")
+					
+					self.cargartvReunionesExtut()
+				else:
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo en el registro.")
+					self.btMsgBoxAceptar.set_label("            Cerrar            ")
+		
+			else:
+				 queryObtenerIdExTEntidad = "SELECT IdExTEntidad FROM EXTUT_ENTIDADES WHERE Nombre = \'" + entid + "\'"
+				 
+				 try:
+				 	cursor.execute(queryObtenerIdExTEntidad)
+				 except Exception, e:
+				 	raise e
+
+				 comprobacion2 = cursor.fetchone()
+
+				 if comprobacion2 != None:
+				 	queryInsertarExTut = "INSERT INTO EXTUT (IdExTEntidad, IdMenor) VALUES (\'" + str(comprobacion2[0]) + "\', '" + idmenor + "\')" 
+				 	try:
+						cursor.execute(queryInsertarExTut)
+						c.commit()
+					except Exception, e:
+						c.rollback()
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Fallo en el registro")
+						self.btMsgBoxAceptar.set_label("           Cerrar           ")
+
+					queryObtenerIdExtut = "SELECT IdExtut FROM EXTUT WHERE IdMenor = \'" + idmenor + "\' AND IdExTEntidad = \'" + str(comprobacion2[0]) + "\'" 
+
+					try:
+						cursor.execute(queryObtenerIdExtut)
+					except Exception, e:
+						raise e
+
+					resultado = cursor.fetchone()
+
+					if resultado != None:
+						queryInsertarReunionExtut = "INSERT INTO EXTUT_PROPUESTAS (TipoReunion, FechaReunion, AcuerdosReunion, IdExtut) VALUES (\'" + tip + "\', '" + fech + "\', '" + acuerR + "\', '" + str(resultado[0]) + "\')"
+						try:
+							cursor.execute(queryInsertarReunionExtut)
+							c.commit()
+							self.msgbox.show()
+							self.lbMsgBox.set_text("Reunión registrada con éxito")
+							self.btMsgBoxAceptar.set_label("            Cerrar            ")
+						except Exception, e:
+							c.rollback()
+							self.msgbox.show()
+							self.lbMsgBox.set_text("Fallo en el registro")
+							self.btMsgBoxAceptar.set_label("            Cerrar            ")
+						
+						self.cargartvReunionesExtut()
+					else:
+						self.msgbox.show()
+						self.lbMsgBox.set_text("Fallo en el registro.")
+						self.btMsgBoxAceptar.set_label("            Cerrar            ")
+
+				 else:
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Fallo al obtener la entidad")
+					self.btMsgBoxAceptar.set_label("Cerrar")
+				
+		elif self.btAceptarReunion.get_label() == "Actualizar":
+			tv = self.tvReuniones
+			selection = tv.get_selection()
+			model, treeiter = selection.get_selected()
+			if treeiter != None:
+				idreunion = model[treeiter][3]
+
+			c = conexion.db
+			cursor = c.cursor()
+		
+			queryActualizarReunion = "UPDATE EXTUT_REUNIONES SET TipoReunion = \'" + tip + "\', FechaReunion = \'" + fech + "\', AcuerdosReunion = \'" + acuerR + "\' WHERE IdReunion = \'" + idreunion + "\'"
+
+			try:
+				cursor.execute(queryActualizarReunion)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Tipo, Fecha y Acuerdos de la reunión, actualizados con éxito")
+				self.btMsgBoxAceptar.set_label("            Cerrar            ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La actualización ha fallado")
+				self.btMsgBoxAceptar.set_label("            Cerrar           ")
+
+			self.cargartvReunionesExtut()
+
+		cursor.close()
 
 	def reunionesExTutDelete(self, widget, data=None):
 		self.ventanaReunionesExtut.hide()
@@ -3821,6 +3969,85 @@ class ficha_ts:
 
 		cursor.close()
 
+	def btDetalleReunionClick(self, widget):
+		self.ventanaReunionesExtut.show()
+		self.btAceptarReunion.set_label("Actualizar")
+		self.fixed12.move(self.btAceptarReunion, 135, 0)
+		self.btEliminarReunion.set_visible(True)
+		self.fixed12.move(self.btEliminarReunion, 240, 0)
+		self.cargarcbxEntidadExtut()
+
+		tv = self.tvReuniones
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idreunion = model[treeiter][3]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetalleReunion = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_REUNIONES.FechaReunion, EXTUT_REUNIONES.TipoReunion, EXTUT_REUNIONES.AcuerdosReunion FROM EXTUT, EXTUT_ENTIDADES, EXTUT_REUNIONES WHERE EXTUT_REUNIONES.IdReunion = \'" + idreunion + "\' AND EXTUT.IdExtut = EXTUT_REUNIONES.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad"
+
+		try:
+			cursor.execute(queryDetalleReunion)
+		except Exception, e:
+			raise e
+
+		resultadoDetalleReunion = cursor.fetchone()
+
+		if resultadoDetalleReunion != None:
+		
+			for posicion, elemento in enumerate(self.lsEntidadExtut):
+				f = elemento[0]
+				if f == str(resultadoDetalleReunion[0]):
+					self.cbxEntidadReunion.set_active(posicion)
+
+			dateFormat = resultadoDetalleReunion[1].strftime("%d/%m/%Y") 
+			self.tbFechaReunion.set_text(dateFormat)
+			
+			for posicion, elemento in enumerate(self.lsTipoReunionExtut):
+				f = elemento[0]
+				if f == str(resultadoDetalleReunion[2]):
+					self.cbxTipoReunion.set_active(posicion)
+
+			textbuffer = self.tbAcuerdosReunion.get_buffer() 
+ 			textbuffer.set_text(str(resultadoDetalleReunion[3]))
+
+
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btEliminarReunionClick(self, widget):
+		tv = self.tvReuniones
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			idreunion = model[treeiter][3]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryBorrarReunion = "DELETE FROM EXTUT_REUNIONES WHERE IdReunion = \'" + idreunion + "\'"
+		
+		try:
+			cursor.execute(queryBorrarReunion)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Eliminada con éxito")
+			self.btMsgBoxAceptar.set_label("            Cerrar            ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("La eliminación ha fallado")
+			self.btMsgBoxAceptar.set_label("            Cerrar           ")
+
+		self.cargartvReunionesExtut()
+
+		cursor.close()
 
 	def empresaExTutDelete(self, widget, data=None):
 		self.ventanaEmpresaExTut.hide()
@@ -3863,7 +4090,9 @@ class ficha_ts:
 		elif self.btMsgBoxAceptar.get_label() == "           Cerrar           ":
 			self.msgbox.hide()
 			self.ventanaPropExtut.hide()
-			
+		elif self.btMsgBoxAceptar.get_label() == "            Cerrar            ":
+			self.msgbox.hide()
+			self.ventanaReunionesExtut.hide()
 
 
 
