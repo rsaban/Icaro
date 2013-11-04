@@ -8,7 +8,7 @@ import os
 import sys
 import conexion
 import datetime
-
+import fichaMenor
 
 class ficha_ts:
 	
@@ -32,6 +32,7 @@ class ficha_ts:
 		self.acambiar24 = builder.get_object("layout24")
 
 		#ficha
+		self.ficha = builder.get_object("ficha")
 		#ENCABEZADO
 		self.lbCentroActivo = builder.get_object("lbCentroActivo")
 		self.lbMostrarExpdte = builder.get_object("lbMostrarExpdte")
@@ -285,7 +286,9 @@ class ficha_ts:
 		self.lbMsgBox = builder.get_object("lbMsgBox")
 		self.btMsgBoxAceptar = builder.get_object("btMsgBoxAceptar")
 
-		dict = {"on_btAceptar_clicked":self.btAceptarClick,
+		dict = {"on_btFicha_clicked": self.btFichaClick,
+				"on_ficha_delete_event": self.fichaDelete,
+				"on_btAceptar_clicked":self.btAceptarClick,
 				"on_btConvivencia_clicked": self.btConvivenciaClick,
 				"on_unidadConvivencia_delete_event": self.uCDelete,
 				"on_btMsgBoxAceptar_clicked": self.btMsgBoxAceptarClick,
@@ -4052,6 +4055,51 @@ class ficha_ts:
 	def empresaExTutDelete(self, widget, data=None):
 		self.ventanaEmpresaExTut.hide()
 		return True
+
+	def btFichaClick(self, widget):
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			query = "SELECT EXPEDIENTE.FechaApertura, EXPEDIENTE.EQM, ADMISION.FechaAdmision, MENOR.FechaNac, MENOR.Pasaporte, MENOR.Sexo, MENOR.Desamparo, MENOR.Direccion, MENOR.CP, MENOR.Localidad, MENOR.Provincia, MENOR.Telefono1, MENOR.Telefono2, MENOR.Mail, MENOR.Nacionalidad, MENOR.Empadronamiento, MENOR.NUSS, MENOR.NUSSA, MENOR.CIN, DNI.TipoDoc FROM EXPEDIENTE, ADMISION, MENOR, DNI WHERE EXPEDIENTE.IdExpdte= \"" + self.lbMostrarExpdte.get_text() + "\" AND EXPEDIENTE.IdExpdte = ADMISION.IdExpdte AND EXPEDIENTE.IdMenor = MENOR.IdMenor AND MENOR.DNI = DNI.DNI"
+			cursor.execute(query)
+		except Exception, e:
+			raise e
+
+		resultadoConsulta = cursor.fetchone()
+	
+		fechaAper = resultadoConsulta[0]
+		eqm = resultadoConsulta[1]
+		fechaAdm = resultadoConsulta[2]
+		fechaNac = resultadoConsulta[3]
+		pasaporte = resultadoConsulta[4]
+		sexo = resultadoConsulta[5]
+		desamparo = resultadoConsulta[6]
+		direccion = resultadoConsulta[7]
+		cp = resultadoConsulta[8]
+		localidad = resultadoConsulta[9]
+		prov = resultadoConsulta[10]
+		tlfno = resultadoConsulta[11]
+		movil = resultadoConsulta[12]
+		mail = resultadoConsulta[13]
+		nacion = resultadoConsulta[14]
+		padron = resultadoConsulta[15]
+		nuss = resultadoConsulta[16]
+		nussa = resultadoConsulta[17]
+		cin = resultadoConsulta[18]
+		tipodoc = resultadoConsulta[19]
+
+		#enviamos todo a la ficha
+		fichaMenor.Ficha().cargarDatos(fechaAdm, self.lbMostrarExpdte.get_text(), fechaAper, eqm, self.lbMostrarNombre.get_text(), self.lbMostrarDNI.get_text(), pasaporte, fechaNac, direccion, cp, sexo, localidad, prov, tlfno, movil, mail, nacion, padron, nuss, nussa, cin, desamparo, tipodoc)
+		self.ficha.hide()
+
+		cursor.close()
+
+
+	def fichaDelete(self, widget, data=None):
+		self.ficha.hide()
+		return True
+
 
 	def btMsgBoxAceptarClick (self, widget):
 		if self.btMsgBoxAceptar.get_label() == "Cerrar":
