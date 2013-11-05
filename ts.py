@@ -236,6 +236,7 @@ class ficha_ts:
 		self.btAceptarEntidadExtut = builder.get_object("btAceptarEntidadExtut")
 		self.btEliminarEntidadExtut = builder.get_object("btEliminarEntidadExtut")
 		self.fixed10 = builder.get_object("fixed10")
+		self.tbIdEntidadExtut = builder.get_object("tbIdEntidadExtut")
 
 		#obtenemos los liststore
 		self.lsCursoLabora = builder.get_object("lsCursoLabora")
@@ -355,13 +356,16 @@ class ficha_ts:
 				"on_btAceptarEmpresaExtranj_clicked": self.btAceptarEmpresaExtranjClick,
 				"on_btDetalleEmpleo_clicked": self.btDetalleEmpleoClick,
 				"on_btEliminarEmpresaExtranj_clicked": self.btEliminarEmpresaExtranjClick,
-				"on_btAceptarEntidadExtut_clicked": self.btAceptarEntidadExtut,
+				"on_btAceptarEntidadExtut_clicked": self.btAceptarEntidadExtutClick,
 				"on_btAceptarPropuesta_clicked": self.btAceptarPropuestaClick,
 				"on_btDetallePropuesta_clicked": self.btDetallePropuestaClick,
 				"on_btEliminarPropuesta_clicked": self.btEliminarPropuestaClick,
 				"on_btAceptarReunion_clicked": self.btAceptarReunionExtutClick,
 				"on_btDetalleReunion_clicked": self.btDetalleReunionClick,
-				"on_btEliminarReunion_clicked": self.btEliminarReunionClick
+				"on_btEliminarReunion_clicked": self.btEliminarReunionClick,
+				"on_btDetalleEmpresa_clicked": self.btDetalleEmpresaClick,
+				"on_btDetalleEmpresa2_clicked": self.btDetalleEmpresa2Click,
+				"on_btEliminarEntidadExtut_clicked": self.btEliminarEntidadExtutClick
 				} 
 		builder.connect_signals(dict)
 
@@ -3923,29 +3927,50 @@ class ficha_ts:
 		self.tbTelefonoEntidad.set_text("")
 		self.tbMailEntidad.set_text("")
 
-	def btAceptarEntidadExtut(self, widget):
+	def btAceptarEntidadExtutClick(self, widget):
 		entity = self.tbEntidad.get_text()
 		dirEntity = self.tbDireccionEntidad.get_text()
 		tlfnEntity = self.tbTelefonoEntidad.get_text()
 		mailEntity = self.tbMailEntidad.get_text()
 
-		queryInsertarEntidad = "INSERT INTO EXTUT_ENTIDADES (Nombre, Direccion, Telefono, Mail) VALUES (\'" + entity + "\', '" + dirEntity + "\', '" + tlfnEntity + "\', '" + mailEntity + "\')" 
-
 		c = conexion.db
 		cursor = c.cursor()
 
-		try:
-			cursor.execute(queryInsertarEntidad)
-			c.commit()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("Entidad grabada con éxito")
-			self.btMsgBoxAceptar.set_label("          Cerrar          ")
-		except Exception, e:
-			c.rollback()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("El registro ha fallado")
-			self.btMsgBoxAceptar.set_label("          Cerrar          ")
 
+		if self.btAceptarEntidadExtut.get_label() == "Aceptar":
+			
+			queryInsertarEntidad = "INSERT INTO EXTUT_ENTIDADES (Nombre, Direccion, Telefono, Mail) VALUES (\'" + entity + "\', '" + dirEntity + "\', '" + tlfnEntity + "\', '" + mailEntity + "\')" 
+
+			try:
+				cursor.execute(queryInsertarEntidad)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Entidad grabada con éxito")
+				self.btMsgBoxAceptar.set_label("          Cerrar          ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("El registro ha fallado")
+				self.btMsgBoxAceptar.set_label("          Cerrar          ")
+		
+		elif self.btAceptarEntidadExtut.get_label() == "Actualizar":
+			
+			queryActualizarEntidad = "UPDATE EXTUT_ENTIDADES SET Nombre = \'" + entity + "\', Direccion = \'" + dirEntity + "\', Telefono = \'" + tlfnEntity + "\', Mail = \'" + mailEntity + "\' WHERE EXTUT_ENTIDADES.IdExTEntidad = \'" + self.tbIdEntidadExtut.get_text() + "\'" 
+
+			try:
+				cursor.execute(queryActualizarEntidad)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Entidad actualizada con éxito")
+				self.btMsgBoxAceptar.set_label("          Cerrar          ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La actualización ha fallado")
+				self.btMsgBoxAceptar.set_label("          Cerrar          ")
+
+			self.cargartvPropuestasExtut()
+			self.cargartvReunionesExtut()
 		cursor.close()
 
 	def cargarcbxEntidadExtut(self):
@@ -4056,6 +4081,107 @@ class ficha_ts:
 		self.ventanaEmpresaExTut.hide()
 		return True
 
+	def btDetalleEmpresaClick(self, widget):
+		self.ventanaEmpresaExTut.show()
+		self.btAceptarEntidadExtut.set_label("Actualizar")
+		self.fixed10.move(self.btAceptarEntidadExtut, 120, 0)
+		self.btEliminarEntidadExtut.set_visible(True)
+		self.fixed10.move(self.btEliminarEntidadExtut, 225, 0)
+
+		tv = self.tvPropuestas
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			presa = model[treeiter][0]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetalleEmpresa = "SELECT * FROM EXTUT_ENTIDADES WHERE EXTUT_ENTIDADES.Nombre = \'" + presa + "\'"
+
+		try:
+			cursor.execute(queryDetalleEmpresa)
+		except Exception, e:
+			raise e
+
+		resultadoDetalleEmpresa = cursor.fetchone()
+
+		if resultadoDetalleEmpresa != None:
+			self.tbIdEntidadExtut.set_text(str(resultadoDetalleEmpresa[0]))
+			self.tbEntidad.set_text(resultadoDetalleEmpresa[1])
+			self.tbDireccionEntidad.set_text(resultadoDetalleEmpresa[2])
+			self.tbTelefonoEntidad.set_text(str(resultadoDetalleEmpresa[3]))
+			self.tbMailEntidad.set_text(resultadoDetalleEmpresa[4])
+
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btDetalleEmpresa2Click(self, widget):
+		self.ventanaEmpresaExTut.show()
+		self.btAceptarEntidadExtut.set_label("Actualizar")
+		self.fixed10.move(self.btAceptarEntidadExtut, 120, 0)
+		self.btEliminarEntidadExtut.set_visible(True)
+		self.fixed10.move(self.btEliminarEntidadExtut, 225, 0)
+
+		tv = self.tvReuniones
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			presa = model[treeiter][0]
+						
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryDetalleEmpresa = "SELECT * FROM EXTUT_ENTIDADES WHERE EXTUT_ENTIDADES.Nombre = \'" + presa + "\'"
+
+		try:
+			cursor.execute(queryDetalleEmpresa)
+		except Exception, e:
+			raise e
+
+		resultadoDetalleEmpresa = cursor.fetchone()
+
+		if resultadoDetalleEmpresa != None:
+			self.tbIdEntidadExtut.set_text(str(resultadoDetalleEmpresa[0]))
+			self.tbEntidad.set_text(resultadoDetalleEmpresa[1])
+			self.tbDireccionEntidad.set_text(resultadoDetalleEmpresa[2])
+			self.tbTelefonoEntidad.set_text(str(resultadoDetalleEmpresa[3]))
+			self.tbMailEntidad.set_text(resultadoDetalleEmpresa[4])
+
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+		
+		cursor.close()
+
+	def btEliminarEntidadExtutClick(self, widget):
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryBorrarEmpresa = "DELETE FROM EXTUT_ENTIDADES WHERE IdExTEntidad = \'" + self.tbIdEntidadExtut.get_text() + "\'"
+		
+		try:
+			cursor.execute(queryBorrarEmpresa)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Eliminada con éxito")
+			self.btMsgBoxAceptar.set_label("          Cerrar          ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("La empresa está en uso, no es posible su eliminación")
+			self.btMsgBoxAceptar.set_label("          Cerrar          ")
+
+		self.cargartvPropuestasExtut()
+		self.cargartvReunionesExtut()
+
+		cursor.close()
+
 	def btFichaClick(self, widget):
 		c = conexion.db
 		cursor = c.cursor()
@@ -4095,11 +4221,9 @@ class ficha_ts:
 
 		cursor.close()
 
-
 	def fichaDelete(self, widget, data=None):
 		self.ficha.hide()
 		return True
-
 
 	def btMsgBoxAceptarClick (self, widget):
 		if self.btMsgBoxAceptar.get_label() == "Cerrar":

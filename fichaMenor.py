@@ -75,6 +75,11 @@ class Ficha:
 		self.tbPasFechaExp = builder.get_object("tbPasFechaExp")
 		self.tbPasFechaRenov = builder.get_object("tbPasFechaRenov")
 
+		#Obtenemos la ventana Regimen de Contactos
+		self.regimenContactos = builder.get_object("regimenContactos")
+		self.lstvRegContactos = builder.get_object("lstvRegContactos")
+
+
 		#Ponemos el nombre a la ventana, el centro activo y el idCentro en un label Invisible.
 		self.FichaMenor.set_title("Ficha")
 		self.lbNombreCentro.set_text(globales.nombreCentro)
@@ -94,7 +99,9 @@ class Ficha:
 				"on_ventanaPasaporte_delete_event": self.BorrarVentanaPasaporte,
 				"on_btDNIAceptar_clicked": self.btDNIAceptarClick,
 				"on_btPasAceptar_clicked": self.btPasAceptarClick,
-				"on_btMsgboxAceptar_clicked": self.btMsgboxAceptarClick
+				"on_btMsgboxAceptar_clicked": self.btMsgboxAceptarClick,
+				"on_regimenContactos_delete_event": self.regimenContactosDelete,
+				"on_btCerrarContactos_clicked": self.regimenContactosDelete
 				}
 		builder.connect_signals(dict)
 
@@ -276,7 +283,31 @@ class Ficha:
 		pass
 
 	def btRegContClick(self, widget):
-		pass
+		self.regimenContactos.show()
+		self.lstvRegContactos.clear()
+
+		queryRegContactos = "SELECT UC.NombreConviv, UC.Parentesco, UC.Privilegio FROM UC, EXPEDIENTE, AREA_SOCIAL WHERE EXPEDIENTE.IdExpdte = \'" + self.tbExpdte.get_text() + "\' AND EXPEDIENTE.IdExpdte = AREA_SOCIAL.IdExpdte AND AREA_SOCIAL.IdSocial = UC.IdSocial"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryRegContactos)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lstvRegContactos.append(resultado[i])
+
+		cursor.close()
+
+
+	def regimenContactosDelete(self, widget, data=None):
+		self.regimenContactos.hide()
+		return True
 
 	def btMostrarDNIClick(self, widget):
 		if self.tbDNI.get_text() == "" or self.tbDNI.get_text().isspace == True:
@@ -312,7 +343,6 @@ class Ficha:
 				pass
 
 			cursor.close()
-
 
 	def btMostrarPasaporteClick(self, widget):
 		if self.tbPasaporte.get_text() == "" or self.tbPasaporte.get_text().isspace == True:
@@ -382,6 +412,7 @@ class Ficha:
 				c.rollback()
 
 			cursor.close()
+	
 	def btPasAceptarClick(self, widget):
 		if self.tbPasFechaExp.get_text() == "" or self.tbPasFechaExp.get_text().isspace == True or self.tbPasFechaRenov.get_text() == "" or self.tbPasFechaRenov.get_text().isspace == True:
 			self.msgbox.show()
