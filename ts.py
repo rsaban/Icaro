@@ -65,6 +65,14 @@ class ficha_ts:
 		self.tbEntorno = builder.get_object("tbEntorno")
 		#Diagnostico Social
 		self.tbDiagnostico = builder.get_object("tbDiagnostico")
+		#CentroEducativo
+		self.cbxNEE = builder.get_object("cbxNEE")
+		self.cbxTipoNEE = builder.get_object("cbxTipoNEE")
+		self.tbObservColegio = builder.get_object("tbObservColegio")
+		self.tbCentroEducativo = builder.get_object("tbCentroEducativo")
+		self.tbCurso = builder.get_object("tbCurso")
+		self.tbCodCentEducativo = builder.get_object("tbCodCentEducativo")
+		self.tvIncidencias = builder.get_object("tvIncidencias")
 		#SAE
 		self.tbOficina = builder.get_object("tbOficina")
 		self.tbDireccionOficina = builder.get_object("tbDireccionOficina")
@@ -102,6 +110,22 @@ class ficha_ts:
 		#Extutelados
 		self.tvPropuestas = builder.get_object("tvPropuestas")
 		self.tvReuniones = builder.get_object("tvReuniones")
+
+		#centroEducativo
+		self.centroEducativo = builder.get_object("centroEducativo")
+		self.tbNombreCE = builder.get_object("tbNombreCE")
+		self.tbDireccionCE = builder.get_object("tbDireccionCE")
+		self.tbTlfnoCE = builder.get_object("tbTlfnoCE")
+		self.tbMailCE = builder.get_object("tbMailCE")
+		self.btAceptarCE = builder.get_object("btAceptarCE")
+		self.btEliminarCE = builder.get_object("btEliminarCE")
+		self.fixed13 = builder.get_object("fixed13")
+
+		#selecCentroEducativo	
+		self.ventanaSelecCentroEducativo = builder.get_object("selecCentroEducativo")
+		self.cbxCentroEducativo = builder.get_object("cbxCentroEducativo")
+		self.btNuevoCE = builder.get_object("btNuevoCE")
+		self.btAceptarSelecCentro = builder.get_object("btAceptarSelecCentro")
 
 		#unidadConvivencia
 		self.ventanaUC = builder.get_object("unidadConvivencia")
@@ -271,6 +295,7 @@ class ficha_ts:
 		self.lstvPropExtut = builder.get_object("lstvPropExtut")
 		self.lsTipoReunionExtut = builder.get_object("lsTipoReunionExtut")
 		self.lstvReunionesExtut = builder.get_object("lstvReunionesExtut")
+		self.lsTipoNEE = builder.get_object("lsTipoNEE")
 
 		#aplicar cambio de color a los fondos del notebook
 		self.acambiar8.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
@@ -365,7 +390,14 @@ class ficha_ts:
 				"on_btEliminarReunion_clicked": self.btEliminarReunionClick,
 				"on_btDetalleEmpresa_clicked": self.btDetalleEmpresaClick,
 				"on_btDetalleEmpresa2_clicked": self.btDetalleEmpresa2Click,
-				"on_btEliminarEntidadExtut_clicked": self.btEliminarEntidadExtutClick
+				"on_btEliminarEntidadExtut_clicked": self.btEliminarEntidadExtutClick,
+				"on_btSelecCentro_clicked": self.btSelecCentroClick,
+				"on_btNuevoCE_clicked": self.btNuevoCEClick,
+				"on_btAceptarSelecCentro_clicked": self.btAceptarSelecCentroClick,
+				"on_centroEducativo_delete_event": self.centroEducativoDelete,
+				"on_selecCentroEducativo_delete_event": self.selecCentroEducativoDelete,
+				"on_btAceptarCE_clicked": self.btAceptarCEClick,
+				"on_btEliminarCE_clicked": self.btEliminarCEClick
 				} 
 		builder.connect_signals(dict)
 
@@ -584,6 +616,32 @@ class ficha_ts:
 		else:
 			pass			
 		
+		queryCargarDatos6 = "SELECT SUBAREA_EDUCATIVA_TS.Curso, SUBAREA_EDUCATIVA_TS.NEE, SUBAREA_EDUCATIVA_TS.TipoNEE, SUBAREA_EDUCATIVA_TS.Observaciones FROM SUBAREA_EDUCATIVA_TS, AREA_SOCIAL WHERE AREA_SOCIAL.IdSocial = SUBAREA_EDUCATIVA_TS.IdSocial AND AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
+
+		try:
+			cursor.execute(queryCargarDatos6)
+		except Exception, e:
+			raise e
+
+		consultado6 = cursor.fetchone()
+
+		if consultado6 != None:
+			self.tbCurso.set_text(consultado6[0])
+			for posicion, elemento in enumerate(self.lsPHC):
+				f = elemento[0]
+				if f == consultado6[1]:
+					self.cbxNEE.set_active(posicion)
+
+			for posicion, elemento in enumerate(self.lsTipoNEE):
+				f = elemento[0]
+				if f == consultado6[2]:
+					self.cbxTipoNEE.set_active(posicion)
+
+			textbuffer = self.tbObservColegio.get_buffer()
+			textbuffer.set_text(consultado6[3])
+		else:
+			pass			
+
 
 
 		#ahora voy a cargar los treeviews
@@ -1327,6 +1385,65 @@ class ficha_ts:
 			cursor.close()
 
 		elif paginaActual == 7:
+			curso_colegio = self.tbCurso.get_text()
+			ne = self.cbxNEE.get_active_text()
+			tipo_ne = self.cbxTipoNEE.get_active_text()
+			obs_ne = self.tbObservColegio.get_buffer()
+			obsne = obs_ne.get_text(*obs_ne.get_bounds())
+
+			queryComprobarRegistro = "SELECT SUBAREA_EDUCATIVA_TS.IdSubEduc FROM SUBAREA_EDUCATIVA_TS, AREA_SOCIAL WHERE AREA_SOCIAL.IdSocial = SUBAREA_EDUCATIVA_TS.IdSocial AND AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
+
+			c = conexion.db
+			cursor = c.cursor()
+
+			try:
+				cursor.execute(queryComprobarRegistro)
+			except Exception, e:
+				raise e
+
+			comprobacion = cursor.fetchone()
+
+			if comprobacion != None:
+				queryActualizarNEE = "UPDATE SUBAREA_EDUCATIVA_TS SET Curso = \'" + curso_colegio + "', NEE = \'" + ne + "\', TipoNEE = \'" + tipo_ne  + "\', Observaciones = \'" + obsne + "\' WHERE IdSubEduc = \'" + str(comprobacion[0]) + "\'"
+
+				try:
+					cursor.execute(queryActualizarNEE)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Actualizado con éxito")
+					self.btMsgBoxAceptar.set_label("Cerrar")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("No se pudo actualizar")
+					self.btMsgBoxAceptar.set_label("Cerrar")
+			else:
+				queryObtenerIdSocial = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
+
+				try:
+					cursor.execute(queryObtenerIdSocial)
+				except Exception, e:
+					raise e
+
+				idsoc = cursor.fetchone()
+
+				queryInsertarNEE = "INSERT INTO SUBAREA_EDUCATIVA_TS (Curso, NEE, TipoNEE, Observaciones, IdSocial) VALUES (\'" + curso_colegio + "\', '" + ne + "\', '" + tipo_ne + "\', '" + obsne + "\', '" + str(idsoc[0]) + "\')"
+
+				try:
+					cursor.execute(queryInsertarNEE)
+					c.commit()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("Actualizado con éxito")
+					self.btMsgBoxAceptar.set_label("Cerrar")
+				except Exception, e:
+					c.rollback()
+					self.msgbox.show()
+					self.lbMsgBox.set_text("No se pudo actualizar")
+					self.btMsgBoxAceptar.set_label("Cerrar")
+
+			cursor.close()
+
+		elif paginaActual == 8:	
 			ofi = self.tbOficina.get_text()
 			direc = self.tbDireccionOficina.get_text()
 			tlfn = self.tbTelefonoOficina.get_text()
@@ -1424,7 +1541,7 @@ class ficha_ts:
 
 			cursor.close()
 		
-		elif paginaActual == 8:
+		elif paginaActual == 9:
 			ofic = self.tbOficinaOrienta.get_text()
 			dire = self.tbDireccionOrienta.get_text()
 			tlfno = self.tbTelefonoOrienta.get_text()
@@ -1476,12 +1593,12 @@ class ficha_ts:
 
 			cursor.close()
 
-		elif paginaActual == 9:
+		elif paginaActual == 10:
 			self.msgbox.show()
 			self.lbMsgBox.set_text("Esta pestaña no es actualizable mediante este botón.")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		elif paginaActual == 10:
+		elif paginaActual == 11:
 			orient = self.tbOrientadorLabora.get_text()
 			tfno = self.tbTelefonoLabora.get_text()
 			actPrac = self.cbxPracticasLabora.get_active_text()
@@ -1529,12 +1646,12 @@ class ficha_ts:
 
 			cursor.close()
 
-		elif paginaActual == 11:
+		elif paginaActual == 12:
 			self.msgbox.show()
 			self.lbMsgBox.set_text("Esta pestaña no es actualizable mediante este botón.")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		elif paginaActual == 12:
+		elif paginaActual == 13:
 			permExt = self.cbxPermisoExtranj.get_active_text()
 			fE = self.tbFechaExpedicionPermiso.get_text()
 			day = datetime.datetime.strptime(fE, '%d/%m/%Y')
@@ -1588,12 +1705,12 @@ class ficha_ts:
 
 			cursor.close()
 
-		elif paginaActual == 13:
+		elif paginaActual == 14:
 			self.msgbox.show()
 			self.lbMsgBox.set_text("Esta pestaña no es actualizable mediante este botón.")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		elif paginaActual == 14:
+		elif paginaActual == 15:
 			self.msgbox.show()
 			self.lbMsgBox.set_text("Esta pestaña no es actualizable mediante este botón.")
 			self.btMsgBoxAceptar.set_label("Cerrar")
@@ -4181,6 +4298,29 @@ class ficha_ts:
 		self.cargartvReunionesExtut()
 
 		cursor.close()
+
+	def btSelecCentroClick(self, widget):
+		self.ventanaSelecCentroEducativo.show()
+
+	def btNuevoCEClick(self, widget):
+		self.centroEducativo.show()
+
+	def btAceptarSelecCentroClick(self, widget):
+		pass
+
+	def btAceptarCEClick(self, widget):
+		pass
+
+	def btEliminarCEClick(self, widget):
+		pass
+
+	def centroEducativoDelete(self, widget, data=None):
+		self.centroEducativo.hide()
+		return True
+
+	def selecCentroEducativoDelete(self, widget, data=None):
+		self.ventanaSelecCentroEducativo.hide()
+		return True
 
 	def btFichaClick(self, widget):
 		c = conexion.db
