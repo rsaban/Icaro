@@ -296,6 +296,7 @@ class ficha_ts:
 		self.lsTipoReunionExtut = builder.get_object("lsTipoReunionExtut")
 		self.lstvReunionesExtut = builder.get_object("lstvReunionesExtut")
 		self.lsTipoNEE = builder.get_object("lsTipoNEE")
+		self.lsCentrosEducativos = builder.get_object("lsCentrosEducativos")
 
 		#aplicar cambio de color a los fondos del notebook
 		self.acambiar8.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
@@ -4301,15 +4302,72 @@ class ficha_ts:
 
 	def btSelecCentroClick(self, widget):
 		self.ventanaSelecCentroEducativo.show()
+		self.cargarCbxCentrosEducativos()
+		
+	def cargarCbxCentrosEducativos(self):
+		self.lsCentrosEducativos.clear()
+
+		queryCE = "SELECT NombreCE FROM CENTRO_EDUCATIVO"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryCE)
+		except Exception, e:
+			raise e
+
+		centros = cursor.fetchall()
+
+		if len(centros) > 0:
+			for i in range(len(centros)):
+				self.lsCentrosEducativos.append(centros[i])
+		else:
+			self.lsCentrosEducativos.append(row=None)
+
+		cursor.close()
 
 	def btNuevoCEClick(self, widget):
 		self.centroEducativo.show()
+		self.btEliminarCE.set_visible(False)
+		self.btAceptarCE.set_label("Aceptar")
+		self.fixed13.move(self.btAceptarCE, 180, 0)
+		self.tbNombreCE.set_text("")
+		self.tbDireccionCE.set_text("")
+		self.tbTlfnoCE.set_text("")
+		self.tbMailCE.set_text("")
 
 	def btAceptarSelecCentroClick(self, widget):
-		pass
+		centroElegido = self.cbxCentroEducativo.get_active_text()
+		self.ventanaSelecCentroEducativo.hide()
+		self.tbCentroEducativo.set_text(centroElegido)
 
 	def btAceptarCEClick(self, widget):
-		pass
+		nombreCE = self.tbNombreCE.get_text()
+		direccionCE = self.tbDireccionCE.get_text()
+		tlfnoCE = self.tbTlfnoCE.get_text()
+		mailCE = self.tbMailCE.get_text()
+
+		queryInsertarCE = "INSERT INTO CENTRO_EDUCATIVO (NombreCE, DireccionCE, TelefonoCE, MailCE) VALUES (\'" + nombreCE + "\', '" + direccionCE + "\', '" +tlfnoCE + "\', '" + mailCE + "\')"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryInsertarCE)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Centro educativo registrado con éxito")
+			self.btMsgBoxAceptar.set_label("             Cerrar             ")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo registrar el centro")
+			self.btMsgBoxAceptar.set_label("             Cerrar             ")
+
+		cursor.close()
+
+		self.cargarCbxCentrosEducativos()
 
 	def btEliminarCEClick(self, widget):
 		pass
@@ -4405,7 +4463,9 @@ class ficha_ts:
 		elif self.btMsgBoxAceptar.get_label() == "            Cerrar            ":
 			self.msgbox.hide()
 			self.ventanaReunionesExtut.hide()
-
+		elif self.btMsgBoxAceptar.get_label() == "             Cerrar             ":
+			self.msgbox.hide()
+			self.centroEducativo.hide()
 
 
 		
