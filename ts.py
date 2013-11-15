@@ -617,7 +617,7 @@ class ficha_ts:
 		else:
 			pass			
 		
-		queryCargarDatos6 = "SELECT SUBAREA_EDUCATIVA_TS.Curso, SUBAREA_EDUCATIVA_TS.NEE, SUBAREA_EDUCATIVA_TS.TipoNEE, SUBAREA_EDUCATIVA_TS.Observaciones FROM SUBAREA_EDUCATIVA_TS, AREA_SOCIAL WHERE AREA_SOCIAL.IdSocial = SUBAREA_EDUCATIVA_TS.IdSocial AND AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
+		queryCargarDatos6 = "SELECT SUBAREA_EDUCATIVA_TS.Curso, SUBAREA_EDUCATIVA_TS.NEE, SUBAREA_EDUCATIVA_TS.TipoNEE, SUBAREA_EDUCATIVA_TS.Observaciones, SUBAREA_EDUCATIVA_TS.IdCE FROM SUBAREA_EDUCATIVA_TS, AREA_SOCIAL WHERE AREA_SOCIAL.IdSocial = SUBAREA_EDUCATIVA_TS.IdSocial AND AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
 		try:
 			cursor.execute(queryCargarDatos6)
@@ -640,10 +640,22 @@ class ficha_ts:
 
 			textbuffer = self.tbObservColegio.get_buffer()
 			textbuffer.set_text(consultado6[3])
+
+			self.tbCodCentEducativo.set_text(str(consultado6[4]))
+
+			queryConsultarCE = "SELECT NombreCE FROM CENTRO_EDUCATIVO WHERE IdCE = \'" + str(consultado6[4]) + "\'"
+
+			try:
+				cursor.execute(queryConsultarCE)
+			except Exception, e:
+				raise e
+			centroObtenido = cursor.fetchone()
+
+			if len(centroObtenido) > 0:
+				self.tbCentroEducativo.set_text(centroObtenido[0])
+
 		else:
 			pass			
-
-
 
 		#ahora voy a cargar los treeviews
 		self.cargartvFamiliares()
@@ -1391,6 +1403,7 @@ class ficha_ts:
 			tipo_ne = self.cbxTipoNEE.get_active_text()
 			obs_ne = self.tbObservColegio.get_buffer()
 			obsne = obs_ne.get_text(*obs_ne.get_bounds())
+			centroEd = self.tbCodCentEducativo.get_text()
 
 			queryComprobarRegistro = "SELECT SUBAREA_EDUCATIVA_TS.IdSubEduc FROM SUBAREA_EDUCATIVA_TS, AREA_SOCIAL WHERE AREA_SOCIAL.IdSocial = SUBAREA_EDUCATIVA_TS.IdSocial AND AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
@@ -1405,7 +1418,7 @@ class ficha_ts:
 			comprobacion = cursor.fetchone()
 
 			if comprobacion != None:
-				queryActualizarNEE = "UPDATE SUBAREA_EDUCATIVA_TS SET Curso = \'" + curso_colegio + "', NEE = \'" + ne + "\', TipoNEE = \'" + tipo_ne  + "\', Observaciones = \'" + obsne + "\' WHERE IdSubEduc = \'" + str(comprobacion[0]) + "\'"
+				queryActualizarNEE = "UPDATE SUBAREA_EDUCATIVA_TS SET Curso = \'" + curso_colegio + "', NEE = \'" + ne + "\', TipoNEE = \'" + tipo_ne  + "\', Observaciones = \'" + obsne + "\', IdCE = \'" + centroEd + "\' WHERE IdSubEduc = \'" + str(comprobacion[0]) + "\'"
 
 				try:
 					cursor.execute(queryActualizarNEE)
@@ -1428,7 +1441,7 @@ class ficha_ts:
 
 				idsoc = cursor.fetchone()
 
-				queryInsertarNEE = "INSERT INTO SUBAREA_EDUCATIVA_TS (Curso, NEE, TipoNEE, Observaciones, IdSocial) VALUES (\'" + curso_colegio + "\', '" + ne + "\', '" + tipo_ne + "\', '" + obsne + "\', '" + str(idsoc[0]) + "\')"
+				queryInsertarNEE = "INSERT INTO SUBAREA_EDUCATIVA_TS (Curso, NEE, TipoNEE, Observaciones, IdCE, IdSocial) VALUES (\'" + curso_colegio + "\', '" + ne + "\', '" + tipo_ne + "\', '" + obsne + "\', '" + centroEd + "\', '" + str(idsoc[0]) + "\')"
 
 				try:
 					cursor.execute(queryInsertarNEE)
@@ -4307,7 +4320,7 @@ class ficha_ts:
 	def cargarCbxCentrosEducativos(self):
 		self.lsCentrosEducativos.clear()
 
-		queryCE = "SELECT NombreCE FROM CENTRO_EDUCATIVO"
+		queryCE = "SELECT NombreCE, IdCE FROM CENTRO_EDUCATIVO"
 
 		c = conexion.db
 		cursor = c.cursor()
@@ -4341,6 +4354,11 @@ class ficha_ts:
 		centroElegido = self.cbxCentroEducativo.get_active_text()
 		self.ventanaSelecCentroEducativo.hide()
 		self.tbCentroEducativo.set_text(centroElegido)
+		#cargarmos el textbox con el Id del Centro Educativo elegido. El textbox no se muestra en pantalla.
+		sitio = self.cbxCentroEducativo.get_active()
+		for posicion, elemento in enumerate(self.lsCentrosEducativos):
+			if posicion == sitio:
+				self.tbCodCentEducativo.set_text(elemento[1])
 
 	def btAceptarCEClick(self, widget):
 		nombreCE = self.tbNombreCE.get_text()
