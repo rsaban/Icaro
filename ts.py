@@ -398,7 +398,8 @@ class ficha_ts:
 				"on_centroEducativo_delete_event": self.centroEducativoDelete,
 				"on_selecCentroEducativo_delete_event": self.selecCentroEducativoDelete,
 				"on_btAceptarCE_clicked": self.btAceptarCEClick,
-				"on_btEliminarCE_clicked": self.btEliminarCEClick
+				"on_btEliminarCE_clicked": self.btEliminarCEClick,
+				"on_btDetalleCentro_clicked": self.btDetalleCentroClick
 				} 
 		builder.connect_signals(dict)
 
@@ -4389,6 +4390,39 @@ class ficha_ts:
 
 	def btEliminarCEClick(self, widget):
 		pass
+
+	def btDetalleCentroClick(self, widget):
+		self.centroEducativo.show()
+		self.btAceptarCE.set_label("Actualizar")
+		self.fixed13.move(self.btAceptarCE, 120, 0)
+		self.btEliminarCE.set_visible(True)
+		self.fixed13.move(self.btEliminarCE, 225, 0)
+
+		queryCE = "SELECT * FROM CENTRO_EDUCATIVO WHERE IdCE = \'" + self.tbCodCentEducativo.get_text() + "\'"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryCE)
+		except Exception, e:
+			raise e
+
+		busqueda = cursor.fetchone()
+
+		if len(busqueda) > 0:
+			self.tbNombreCE.set_text(busqueda[1])
+			self.tbDireccionCE.set_text(busqueda[2])
+			self.tbTlfnoCE.set_text(str(busqueda[3]))
+			self.tbMailCE.set_text(busqueda[4])
+		else:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
+			self.btMsgBoxAceptar.set_label("Cerrar")
+
+		cursor.close()
+
+
 
 	def centroEducativoDelete(self, widget, data=None):
 		self.centroEducativo.hide()
