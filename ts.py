@@ -117,6 +117,7 @@ class ficha_ts:
 		self.tbDireccionCE = builder.get_object("tbDireccionCE")
 		self.tbTlfnoCE = builder.get_object("tbTlfnoCE")
 		self.tbMailCE = builder.get_object("tbMailCE")
+		self.tbCodCE = builder.get_object("tbCodCE")
 		self.btAceptarCE = builder.get_object("btAceptarCE")
 		self.btEliminarCE = builder.get_object("btEliminarCE")
 		self.fixed13 = builder.get_object("fixed13")
@@ -652,7 +653,7 @@ class ficha_ts:
 				raise e
 			centroObtenido = cursor.fetchone()
 
-			if len(centroObtenido) > 0:
+			if centroObtenido != None:
 				self.tbCentroEducativo.set_text(centroObtenido[0])
 
 		else:
@@ -4367,29 +4368,75 @@ class ficha_ts:
 		tlfnoCE = self.tbTlfnoCE.get_text()
 		mailCE = self.tbMailCE.get_text()
 
-		queryInsertarCE = "INSERT INTO CENTRO_EDUCATIVO (NombreCE, DireccionCE, TelefonoCE, MailCE) VALUES (\'" + nombreCE + "\', '" + direccionCE + "\', '" +tlfnoCE + "\', '" + mailCE + "\')"
-
 		c = conexion.db
 		cursor = c.cursor()
 
-		try:
-			cursor.execute(queryInsertarCE)
-			c.commit()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("Centro educativo registrado con éxito")
-			self.btMsgBoxAceptar.set_label("             Cerrar             ")
-		except Exception, e:
-			c.rollback()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("No se pudo registrar el centro")
-			self.btMsgBoxAceptar.set_label("             Cerrar             ")
+		if self.btAceptarCE.get_label() == "Aceptar":
+
+			queryInsertarCE = "INSERT INTO CENTRO_EDUCATIVO (NombreCE, DireccionCE, TelefonoCE, MailCE) VALUES (\'" + nombreCE + "\', '" + direccionCE + "\', '" +tlfnoCE + "\', '" + mailCE + "\')"
+
+			try:
+				cursor.execute(queryInsertarCE)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Centro educativo registrado con éxito")
+				self.btMsgBoxAceptar.set_label("             Cerrar             ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("No se pudo registrar el centro")
+				self.btMsgBoxAceptar.set_label("             Cerrar             ")
+
+		elif self.btAceptarCE.get_label() == "Actualizar":
+			queryActualizarCE = "UPDATE CENTRO_EDUCATIVO SET NombreCE = \'" + nombreCE + "', DireccionCE = \'" + direccionCE + "', TelefonoCE = \'" + tlfnoCE + "', MailCE = \'" + mailCE + "' WHERE IdCE = \'" + self.tbCodCE.get_text() + "'" 
+
+			try:
+				cursor.execute(queryActualizarCE)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Centro educativo actualizado con éxito")
+				self.btMsgBoxAceptar.set_label("             Cerrar             ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("No se pudo actualizar el centro")
+				self.btMsgBoxAceptar.set_label("             Cerrar             ")
 
 		cursor.close()
 
 		self.cargarCbxCentrosEducativos()
 
 	def btEliminarCEClick(self, widget):
-		pass
+		queryEliminarCE = "DELETE FROM CENTRO_EDUCATIVO WHERE IdCE = \'" + self.tbCodCE.get_text() + "'" 
+		queryConsultarUsoCE = "SELECT IdSubEduc FROM SUBAREA_EDUCATIVA_TS WHERE IdCE = \'" + self.tbCodCE.get_text() + "'" 
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryConsultarUsoCE)
+		except Exception, e:
+			raise e
+
+		enUso = cursor.fetchone()
+
+		if enUso != None:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No puede eliminar el centro, se encuentra en uso.")
+			self.btMsgBoxAceptar.set_label("             Cerrar             ")
+		else:
+			try:
+				cursor.execute(queryEliminarCE)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Centro educativo eliminado con éxito")
+				self.btMsgBoxAceptar.set_label("             Cerrar             ")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("No se pudo eliminar el centro")
+				self.btMsgBoxAceptar.set_label("             Cerrar             ")
+	
+		cursor.close()
 
 	def btDetalleCentroClick(self, widget):
 		self.centroEducativo.show()
@@ -4415,14 +4462,13 @@ class ficha_ts:
 			self.tbDireccionCE.set_text(busqueda[2])
 			self.tbTlfnoCE.set_text(str(busqueda[3]))
 			self.tbMailCE.set_text(busqueda[4])
+			self.tbCodCE.set_text(self.tbCodCentEducativo.get_text())
 		else:
 			self.msgbox.show()
 			self.lbMsgBox.set_text("No se pudo recuperar el detalle")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
 		cursor.close()
-
-
 
 	def centroEducativoDelete(self, widget, data=None):
 		self.centroEducativo.hide()
@@ -4521,3 +4567,5 @@ class ficha_ts:
 
 
 		
+
+	#repasar los btEliminar
