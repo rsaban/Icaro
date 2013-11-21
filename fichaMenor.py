@@ -57,6 +57,17 @@ class Ficha:
 		self.lsPadron = builder.get_object("lsPadron")
 		self.lsSexo = builder.get_object("lsSexo")
 		self.lsTipoDoc = builder.get_object("lsTipoDoc")
+		self.lbCerrado = builder.get_object("lbCerrado")
+		self.btReabrir = builder.get_object("btReabrir")
+		self.btMostrarDNI = builder.get_object("btMostrarDNI")
+		self.btMostrarPasaporte = builder.get_object("btMostrarPasaporte")
+		self.btActualizar = builder.get_object("btActualizar")
+		self.btAlta = builder.get_object("btAlta")
+		self.btRegCont = builder.get_object("btRegCont")
+		self.btDireccion = builder.get_object("btDireccion")
+		self.btTS = builder.get_object("btTS")
+		self.btPS = builder.get_object("btPS")
+		self.btEd = builder.get_object("btEd")
 
 
 		#Obtenemos el msgbox
@@ -79,6 +90,11 @@ class Ficha:
 		self.regimenContactos = builder.get_object("regimenContactos")
 		self.lstvRegContactos = builder.get_object("lstvRegContactos")
 
+		#Obtenemos la ventana alta
+		self.ventanaAlta = builder.get_object("alta")
+		self.tbFechaAlta = builder.get_object("tbFechaAlta")
+		self.cbxMotivo = builder.get_object("cbxMotivo")
+		self.lsAlta = builder.get_object("lsAlta")
 
 		#Ponemos el nombre a la ventana, el centro activo y el idCentro en un label Invisible.
 		self.FichaMenor.set_title("Ficha")
@@ -101,7 +117,10 @@ class Ficha:
 				"on_btPasAceptar_clicked": self.btPasAceptarClick,
 				"on_btMsgboxAceptar_clicked": self.btMsgboxAceptarClick,
 				"on_regimenContactos_delete_event": self.regimenContactosDelete,
-				"on_btCerrarContactos_clicked": self.regimenContactosDelete
+				"on_btCerrarContactos_clicked": self.regimenContactosDelete,
+				"on_alta_delete_event": self.altaDelete,
+				"on_btAceptarAlta_clicked": self.btAceptarAltaClick,
+				"on_btReabrir_clicked": self.btReabrirClick
 				}
 		builder.connect_signals(dict)
 
@@ -155,6 +174,58 @@ class Ficha:
 				f = elemento[0]
 				if f == str(argv[22]):
 					self.cbxTipoDoc.set_active(posicion)
+
+		#Consultamos si está en activo en el centro
+		queryActivo = "SELECT MAX(ADMISION.FechaAdmision), MAX(ALTA.FechaAlta) FROM ADMISION, ALTA WHERE ADMISION.IdExpdte = \'" + self.tbExpdte.get_text() + "\' AND ALTA.IdExpdte = \'" + self.tbExpdte.get_text() + "\'"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryActivo)
+		except Exception, e:
+			raise e
+
+		resultadoActivo = cursor.fetchone()
+
+		if len(resultadoActivo) > 0:
+			if resultadoActivo[0] > resultadoActivo[1]:
+				self.lbCerrado.show()
+				self.btReabrir.show()
+				self.tbExpdte.set_sensitive(False)
+				self.tbFechaAdmision.set_sensitive(False)	
+				self.tbFechaApertura.set_sensitive(False)
+				self.tbNombre.set_sensitive(False)
+				self.tbDNI.set_sensitive(False)
+				self.tbPasaporte.set_sensitive(False)
+				self.tbDireccion.set_sensitive(False)
+				self.tbCP.set_sensitive(False)
+				self.tbLocalidad.set_sensitive(False)
+				self.tbProvincia.set_sensitive(False)			
+				self.tbFechaNac.set_sensitive(False)
+				self.tbTlfno.set_sensitive(False)
+				self.tbMovil.set_sensitive(False)
+				self.tbMail.set_sensitive(False)
+				self.tbNacionalidad.set_sensitive(False)
+				self.tbNUSS.set_sensitive(False)
+				self.tbNUSSA.set_sensitive(False)
+				self.tbCIN.set_sensitive(False)
+				self.cbxEquipo.set_sensitive(False)
+				self.cbxTipoDoc.set_sensitive(False)
+				self.cbxSexo.set_sensitive(False)
+				self.cbxPadron.set_sensitive(False)
+				self.cbxDesamparo.set_sensitive(False)
+				self.btMostrarDNI.set_sensitive(False)
+				self.btMostrarPasaporte.set_sensitive(False)
+				self.btActualizar.set_sensitive(False)
+				self.btAlta.set_sensitive(False)
+				self.btRegCont.set_sensitive(False)
+				self.btDireccion.set_sensitive(False)
+				self.btTS.set_sensitive(False)
+				self.btPS.set_sensitive(False)
+				self.btEd.set_sensitive(False)
+
+		cursor.close()
 
 	def btActualizarClick(self, widget):
 		expdte = self.tbExpdte.get_text()
@@ -265,9 +336,38 @@ class Ficha:
 
 		cursor.close()
 
-
 	def btAltaClick(self, widget):
-		pass
+		self.ventanaAlta.show()
+
+	def btAceptarAltaClick(self, widget):
+		fechaAltaText = self.tbFechaAlta.get_text()
+		day = datetime.datetime.strptime(fechaAltaText, '%d/%m/%Y')
+		fechaAlta = day.strftime('%Y-%m-%d')
+
+		motivo = self.cbxMotivo.get_active_text()
+
+		queryAlta = "INSERT INTO ALTA (IdExpdte, FechaAlta, MotivoAlta) VALUES (\'" + self.tbExpdte.get_text() + "\', '" + fechaAlta + "\', '" + motivo + "\')"
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryAlta)
+			c.commit()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Alta registrada con éxito")
+			self.btMsgboxAceptar.set_label("Cerrar")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo completar la operación")
+			self.btMsgboxAceptar.set_label("Cerrar")			
+
+		cursor.close()
+
+	def altaDelete(self, widget, data=None):
+		self.ventanaAlta.hide()
+		return True
 
 	def btDireccionClick(self, widget):
 		pass
@@ -440,9 +540,44 @@ class Ficha:
 
 			cursor.close()
 
+	def btReabrirClick(self, widget):
+		self.lbCerrado.hide()
+		self.btReabrir.hide()
+		self.tbExpdte.set_sensitive(True)
+		self.tbFechaAdmision.set_sensitive(True)	
+		self.tbFechaApertura.set_sensitive(True)
+		self.tbNombre.set_sensitive(True)
+		self.tbDNI.set_sensitive(True)
+		self.tbPasaporte.set_sensitive(True)
+		self.tbDireccion.set_sensitive(True)
+		self.tbCP.set_sensitive(True)
+		self.tbLocalidad.set_sensitive(True)
+		self.tbProvincia.set_sensitive(True)			
+		self.tbFechaNac.set_sensitive(True)
+		self.tbTlfno.set_sensitive(True)
+		self.tbMovil.set_sensitive(True)
+		self.tbMail.set_sensitive(True)
+		self.tbNacionalidad.set_sensitive(True)
+		self.tbNUSS.set_sensitive(True)
+		self.tbNUSSA.set_sensitive(True)
+		self.tbCIN.set_sensitive(True)
+		self.cbxEquipo.set_sensitive(True)
+		self.cbxTipoDoc.set_sensitive(True)
+		self.cbxSexo.set_sensitive(True)
+		self.cbxPadron.set_sensitive(True)
+		self.cbxDesamparo.set_sensitive(True)
+		self.btMostrarDNI.set_sensitive(True)
+		self.btMostrarPasaporte.set_sensitive(True)
+		self.btActualizar.set_sensitive(True)
+		self.btActualizar.set_label("Reabrir")
+	
 	def btMsgboxAceptarClick (self, widget):
 		if self.btMsgboxAceptar.get_label() == "Aceptar":
 			self.msgbox.hide()
+			self.FichaMenor.hide()
+		elif self.btMsgboxAceptar.get_label() == "Cerrar":
+			self.msgbox.hide()
+			self.ventanaAlta.hide()
 			self.FichaMenor.hide()
 		else:
 			self.msgbox.hide()
