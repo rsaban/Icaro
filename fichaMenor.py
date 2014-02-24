@@ -189,7 +189,7 @@ class Ficha:
 		resultadoActivo = cursor.fetchone()
 
 		if len(resultadoActivo) > 0:
-			if resultadoActivo[0] > resultadoActivo[1]:
+			if resultadoActivo[0] < resultadoActivo[1]:
 				self.lbCerrado.show()
 				self.btReabrir.show()
 				self.tbExpdte.set_sensitive(False)
@@ -334,6 +334,34 @@ class Ficha:
 		except Exception, e:
 			c.rollback()
 
+		if self.btActualizar.get_label() == "Reabrir":
+			fechaReadmisionText = self.tbFechaAdmision.get_text()
+			dayR = datetime.datetime.strptime(fechaReadmisionText, '%d/%m/%Y')
+			fechaReadmision = dayR.strftime('%Y-%m-%d')
+			
+			queryUltimaAlta = "SELECT MAX(ALTA.FechaAlta) FROM ALTA WHERE ALTA.IdExpdte = \'" + expdte + "'"
+			try:
+				cursor.execute(queryUltimaAlta)
+			except Exception, e:
+				raise e
+
+			ultimaAlta = cursor.fetchone()
+
+			fechaUA = ultimaAlta[0]
+			
+			if str(fechaUA) > fechaReadmision:
+				self.msgbox.show()
+				self.lbMsgBox.set_text("La fecha de readmision no puede ser inferior a la última fecha de alta del centro (" + str(fechaUA) + ")")
+				self.btMsgboxAceptar.set_label("Ups!, no me di cuenta")
+			else:
+				queryReAdmision = "INSERT INTO ADMISION (IdExpdte, FechaAdmision) VALUES (\'" + expdte + "', '" + fechaReadmision + "')"
+				try:
+					cursor.execute(queryReAdmision)
+					c.commit()
+				except Exception, e:
+					c.rollback()
+
+
 		cursor.close()
 
 	def btAltaClick(self, widget):
@@ -344,26 +372,38 @@ class Ficha:
 		day = datetime.datetime.strptime(fechaAltaText, '%d/%m/%Y')
 		fechaAlta = day.strftime('%Y-%m-%d')
 
+		fechaAdmisionText = self.tbFechaAdmision.get_text()
+		day2 = datetime.datetime.strptime(fechaAdmisionText, '%d/%m/%Y')
+		fechaAdmision = day2.strftime('%Y-%m-%d')
+
 		motivo = self.cbxMotivo.get_active_text()
 
-		queryAlta = "INSERT INTO ALTA (IdExpdte, FechaAlta, MotivoAlta) VALUES (\'" + self.tbExpdte.get_text() + "\', '" + fechaAlta + "\', '" + motivo + "\')"
-
-		c = conexion.db
-		cursor = c.cursor()
-
-		try:
-			cursor.execute(queryAlta)
-			c.commit()
+		#primero, comprobar que la fecha de alta es mayor que la última fecha de admisión.
+		if fechaAdmision >= fechaAlta:
 			self.msgbox.show()
-			self.lbMsgBox.set_text("Alta registrada con éxito")
-			self.btMsgboxAceptar.set_label("Cerrar")
-		except Exception, e:
-			c.rollback()
-			self.msgbox.show()
-			self.lbMsgBox.set_text("No se pudo completar la operación")
-			self.btMsgboxAceptar.set_label("Cerrar")			
+			self.lbMsgBox.set_text("La fecha de alta no puede ser inferior a la fecha de admisión.")
+			self.btMsgboxAceptar.set_label("Ups!, no me di cuenta")
 
-		cursor.close()
+		else:
+
+			queryAlta = "INSERT INTO ALTA (IdExpdte, FechaAlta, MotivoAlta) VALUES (\'" + self.tbExpdte.get_text() + "\', '" + fechaAlta + "\', '" + motivo + "\')"
+
+			c = conexion.db
+			cursor = c.cursor()
+
+			try:
+				cursor.execute(queryAlta)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Alta registrada con éxito")
+				self.btMsgboxAceptar.set_label("Cerrar")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("No se pudo completar la operación")
+				self.btMsgboxAceptar.set_label("Cerrar")			
+
+			cursor.close()
 
 	def altaDelete(self, widget, data=None):
 		self.ventanaAlta.hide()
@@ -544,7 +584,8 @@ class Ficha:
 		self.lbCerrado.hide()
 		self.btReabrir.hide()
 		self.tbExpdte.set_sensitive(True)
-		self.tbFechaAdmision.set_sensitive(True)	
+		self.tbFechaAdmision.set_sensitive(True)
+		self.tbFechaAdmision.set_editable(True)
 		self.tbFechaApertura.set_sensitive(True)
 		self.tbNombre.set_sensitive(True)
 		self.tbDNI.set_sensitive(True)

@@ -105,7 +105,7 @@ class ventanaBusqueda:
 		
 		if dni == "" or dni.isspace == True:
 			try:
-				query = "SELECT EXPEDIENTE.FechaApertura, EXPEDIENTE.EQM, ADMISION.FechaAdmision, MENOR.FechaNac, MENOR.Pasaporte, MENOR.Sexo, MENOR.Desamparo, MENOR.Direccion, MENOR.CP, MENOR.Localidad, MENOR.Provincia, MENOR.Telefono1, MENOR.Telefono2, MENOR.Mail, MENOR.Nacionalidad, MENOR.Empadronamiento, MENOR.NUSS, MENOR.NUSSA, MENOR.CIN FROM EXPEDIENTE, ADMISION, MENOR WHERE EXPEDIENTE.IdExpdte= \"" + expdte + "\" AND EXPEDIENTE.IdExpdte = ADMISION.IdExpdte AND EXPEDIENTE.IdMenor = MENOR.IdMenor"
+				query = "SELECT EXPEDIENTE.FechaApertura, EXPEDIENTE.EQM, MAX(ADMISION.FechaAdmision), MENOR.FechaNac, MENOR.Pasaporte, MENOR.Sexo, MENOR.Desamparo, MENOR.Direccion, MENOR.CP, MENOR.Localidad, MENOR.Provincia, MENOR.Telefono1, MENOR.Telefono2, MENOR.Mail, MENOR.Nacionalidad, MENOR.Empadronamiento, MENOR.NUSS, MENOR.NUSSA, MENOR.CIN FROM EXPEDIENTE, ADMISION, MENOR WHERE EXPEDIENTE.IdExpdte= \"" + expdte + "\" AND EXPEDIENTE.IdExpdte = ADMISION.IdExpdte AND EXPEDIENTE.IdMenor = MENOR.IdMenor"
 				cursor.execute(query)
 			except Exception, e:
 				raise e
@@ -136,7 +136,7 @@ class ventanaBusqueda:
 			Ficha().cargarDatos(fechaAdm, expdte, fechaAper, eqm, nombre, dni, pasaporte, fechaNac, direccion, cp, sexo, localidad, prov, tlfno, movil, mail, nacion, padron, nuss, nussa, cin, desamparo, "vacio")
 		else:
 			try:
-				query = "SELECT EXPEDIENTE.FechaApertura, EXPEDIENTE.EQM, ADMISION.FechaAdmision, MENOR.FechaNac, MENOR.Pasaporte, MENOR.Sexo, MENOR.Desamparo, MENOR.Direccion, MENOR.CP, MENOR.Localidad, MENOR.Provincia, MENOR.Telefono1, MENOR.Telefono2, MENOR.Mail, MENOR.Nacionalidad, MENOR.Empadronamiento, MENOR.NUSS, MENOR.NUSSA, MENOR.CIN, DNI.TipoDoc FROM EXPEDIENTE, ADMISION, MENOR, DNI WHERE EXPEDIENTE.IdExpdte= \"" + expdte + "\" AND EXPEDIENTE.IdExpdte = ADMISION.IdExpdte AND EXPEDIENTE.IdMenor = MENOR.IdMenor AND MENOR.DNI = DNI.DNI"
+				query = "SELECT EXPEDIENTE.FechaApertura, EXPEDIENTE.EQM, MAX(ADMISION.FechaAdmision), MENOR.FechaNac, MENOR.Pasaporte, MENOR.Sexo, MENOR.Desamparo, MENOR.Direccion, MENOR.CP, MENOR.Localidad, MENOR.Provincia, MENOR.Telefono1, MENOR.Telefono2, MENOR.Mail, MENOR.Nacionalidad, MENOR.Empadronamiento, MENOR.NUSS, MENOR.NUSSA, MENOR.CIN, DNI.TipoDoc FROM EXPEDIENTE, ADMISION, MENOR, DNI WHERE EXPEDIENTE.IdExpdte= \"" + expdte + "\" AND EXPEDIENTE.IdExpdte = ADMISION.IdExpdte AND EXPEDIENTE.IdMenor = MENOR.IdMenor AND MENOR.DNI = DNI.DNI"
 				cursor.execute(query)
 			except Exception, e:
 				raise e
