@@ -8,6 +8,7 @@ import os
 import sys
 from eleccion import ventanaEleccion
 from herramientas import tools
+from controles import controls
 import conexion
 from Crypto.Cipher import ARC4
 import globales
@@ -40,6 +41,7 @@ class main:
 				"on_btSalir_clicked":self.Salir,
 				"on_btHerramientas_clicked": self.HerramientasClick,
 				"on_btLegislacion_clicked": self.btLegislacionClick,
+				"on_btControles_clicked": self.btControlesClick,
 				"on_btAceptar_clicked": self.btAceptarPassClick,
 				"on_btAceptarMsgBox_clicked": self.btAceptarMsgBoxClick,
 				"on_btCancelar_clicked": self.Salir,
@@ -77,6 +79,9 @@ class main:
 
 	def btLegislacionClick(self, widget):
 		pass
+
+	def btControlesClick(self, widget):
+		controls()
 
 	def btAceptarPassClick(self, widget):
 		usuario = self.tbUsuario.get_text()
