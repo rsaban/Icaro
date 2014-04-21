@@ -53,16 +53,23 @@ class taller_ts:
 		cursor = c.cursor()
 
 		try:
-			query = "SELECT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor"
+			query = "SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT MAX(FechaAlta) FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)"
+			#SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT CASE WHEN FechaAlta IS NULL THEN 0 ELSE MAX(FechaAlta) END FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)
 			cursor.execute(query)
 		except Exception, e:
 			raise e
 
 		resultado = cursor.fetchall()
 
+		#no funciona todavia!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
 		#ahora para cada resultado debo consultar si está activo, si lo está, añadirlo al lstvAnadirPar
+		# for i in range(len(resultado)):
+		# 	if i[2] < i[3]:
+		# 		self.lstvAnadirPar.append(i[0][1])
 
-
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lstvAnadirPar.append(resultado[i])
 
 
 		cursor.close()
