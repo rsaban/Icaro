@@ -22,9 +22,12 @@ class controls:
 		builder= gtk.Builder()
 		builder.add_from_file(pantallaControles)
 
+		self.ventanaControles = builder.get_object("ventanaControles")
 		dict = {"on_btTallerTS_clicked": self.btTallerTSClick
 				}
 		builder.connect_signals(dict)
 
 	def btTallerTSClick(self, widget):
 		taller_ts()
+		self.ventanaControles.hide()
+

@@ -53,8 +53,9 @@ class taller_ts:
 		cursor = c.cursor()
 
 		try:
-			query = "SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT MAX(FechaAlta) FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)"
+			#query = "SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT MAX(FechaAlta) FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)"
 			#SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT CASE WHEN FechaAlta IS NULL THEN 0 ELSE MAX(FechaAlta) END FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)
+			query = "SELECT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor"
 			cursor.execute(query)
 		except Exception, e:
 			raise e
@@ -69,7 +70,21 @@ class taller_ts:
 
 		if len(resultado) != 0:
 			for i in range(len(resultado)):
-				self.lstvAnadirPar.append(resultado[i])
+				#Consultamos si está en activo en el centro
+				numero_expediente = str(resultado[i][0])
+				queryActivo = "SELECT MAX(ADMISION.FechaAdmision), MAX(ALTA.FechaAlta) FROM ADMISION, ALTA WHERE ADMISION.IdExpdte = \'" + numero_expediente + "\' AND ALTA.IdExpdte = \'" + numero_expediente + "\'"
+				try:
+					cursor.execute(queryActivo)
+				except Exception, e:
+					raise e
+
+				resultadoActivo = cursor.fetchone()
+
+				if len(resultadoActivo) > 0:
+					if resultadoActivo[0] >= resultadoActivo[1]:
+						self.lstvAnadirPar.append(resultado[i])
+					
+			
 
 
 		cursor.close()

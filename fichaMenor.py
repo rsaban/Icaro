@@ -381,7 +381,7 @@ class Ficha:
 		#primero, comprobar que la fecha de alta es mayor que la última fecha de admisión.
 		if fechaAdmision >= fechaAlta:
 			self.msgbox.show()
-			self.lbMsgBox.set_text("La fecha de alta no puede ser inferior a la fecha de admisión.")
+			self.lbMsgBox.set_text("La fecha de alta no puede ser inferior o igual a la fecha de admisión.")
 			self.btMsgboxAceptar.set_label("Ups!, no me di cuenta")
 
 		else:
