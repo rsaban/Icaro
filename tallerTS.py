@@ -26,14 +26,25 @@ class taller_ts:
 		self.participantes = builder.get_object("participantes")
 
 		#obtengo los objetos
+		self.tvAnadirPar = builder.get_object("tvAnadirPar")
+		self.tvMenores = builder.get_object("tvMenores")
 
 		#obtengo los liststore
 		self.lstvAnadirPar = builder.get_object("lstvAnadirPar")
+		self.lstvPartTaller = builder.get_object("lstvPartTaller")
+
+		#Obtenemos el msgbox
+		self.msgbox = builder.get_object("msgbox")
+		self.lbMsgBox = builder.get_object("lbMsgBox")
+		self.btMsgboxAceptar = builder.get_object("btMsgboxAceptar")
 
 		dict = {"on_btMostrarTaller_clicked": self.btMostrarTallerClick,
 				"on_btMostrarAnadirPar_clicked": self.btMostrarAnadirParClick,
+				"on_btAnadirPar_clicked": self.btAnadirParClick,
+				"on_btEliminarPar_clicked": self.btEliminarParClick,
 				"on_participantes_delete_event": self.participantesDelete,
-				"on_datosTaller_delete_event": self.datosTallerDelete
+				"on_datosTaller_delete_event": self.datosTallerDelete,
+				"on_btMsgboxAceptar_clicked": self.btMsgBoxAceptarClick
 				}
 		builder.connect_signals(dict)
 
@@ -55,7 +66,7 @@ class taller_ts:
 		try:
 			#query = "SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT MAX(FechaAlta) FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)"
 			#SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT CASE WHEN FechaAlta IS NULL THEN 0 ELSE MAX(FechaAlta) END FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)
-			query = "SELECT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor"
+			query = "SELECT EXPEDIENTE.IdExpdte, MENOR.Nombre, MENOR.IdMenor FROM EXPEDIENTE, MENOR WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor"
 			cursor.execute(query)
 		except Exception, e:
 			raise e
@@ -85,12 +96,41 @@ class taller_ts:
 						self.lstvAnadirPar.append(resultado[i])
 					
 			
-
-
 		cursor.close()
+
+	def btAnadirParClick(self, widget):
+		tv = self.tvAnadirPar	
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			nombre = model[treeiter][1]
+			idmenor = model[treeiter][2] 
+
+			self.lstvPartTaller.append([nombre, idmenor])
+
+			self.participantes.hide()
+
+		else:
+		 	self.msgbox.show()
+		 	self.lbMsgBox.set_text("No hay nada seleccionado")
+		 	self.btMsgboxAceptar.set_label("Cerrar")
+
+	def btEliminarParClick(self, widget):
+		tv = self.tvMenores	
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			self.lstvPartTaller.remove(treeiter)
+		else:
+		 	self.msgbox.show()
+		 	self.lbMsgBox.set_text("No hay nada seleccionado")
+		 	self.btMsgboxAceptar.set_label("Cerrar")
+
 
 	def participantesDelete(self, widget, data=None):
 		self.participantes.hide()
 		return True
 
-
+	def btMsgBoxAceptarClick(self, widget):
+		if self.btMsgboxAceptar.get_label() == "Cerrar":
+			self.msgbox.hide()
