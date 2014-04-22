@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import datetime
 
 
 class taller_ts:
@@ -28,6 +29,11 @@ class taller_ts:
 		#obtengo los objetos
 		self.tvAnadirPar = builder.get_object("tvAnadirPar")
 		self.tvMenores = builder.get_object("tvMenores")
+		#datosTaller
+		self.tbNombreTaller = builder.get_object("tbNombreTaller")
+		self.tbFechaInicio = builder.get_object("tbFechaInicio")
+		self.tbFechaFin = builder.get_object("tbFechaFin")
+
 
 		#obtengo los liststore
 		self.lstvAnadirPar = builder.get_object("lstvAnadirPar")
@@ -42,6 +48,7 @@ class taller_ts:
 				"on_btMostrarAnadirPar_clicked": self.btMostrarAnadirParClick,
 				"on_btAnadirPar_clicked": self.btAnadirParClick,
 				"on_btEliminarPar_clicked": self.btEliminarParClick,
+				"on_btAceptarTaller_clicked": self.btAceptarTallerClick,
 				"on_participantes_delete_event": self.participantesDelete,
 				"on_datosTaller_delete_event": self.datosTallerDelete,
 				"on_btMsgboxAceptar_clicked": self.btMsgBoxAceptarClick
@@ -126,10 +133,36 @@ class taller_ts:
 		 	self.lbMsgBox.set_text("No hay nada seleccionado")
 		 	self.btMsgboxAceptar.set_label("Cerrar")
 
-
 	def participantesDelete(self, widget, data=None):
 		self.participantes.hide()
 		return True
+
+	def btAceptarTallerClick(self, widget):
+		nombreTaller = self.tbNombreTaller.get_text()
+		
+		fechaInicioText = self.tbFechaInicio.get_text()
+		day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
+		fechaInicio= day.strftime('%Y-%m-%d')
+		
+		fechaFinText = self.tbFechaFin.get_text()
+		day2 = datetime.datetime.strptime(fechaFinText, '%d/%m/%Y')
+		fechaFin = day2.strftime('%Y-%m-%d')
+
+		c = conexion.db
+		cursor = c.cursor()
+
+		queryInsertarTaller = "INSERT INTO TALLERES_TS (NombreTallerTS, FechaInicio, FechaFin) VALUES (\'" + nombreTaller + "', '" + fechaInicio + "', '" + fechaFin + "')"
+
+		try:
+			cursor.execute(queryInsertarTaller)
+			c.commit()
+		except Exception, e:
+			c.rollback()
+		
+
+		c.close()
+
+
 
 	def btMsgBoxAceptarClick(self, widget):
 		if self.btMsgboxAceptar.get_label() == "Cerrar":
