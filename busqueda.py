@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import MySQLdb
 from fichaMenor import Ficha
 import datetime
 
@@ -54,7 +55,13 @@ class ventanaBusqueda:
 	
 		peticion = self.tbBusqueda.get_text()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.rbExpdte.get_active() == True:
@@ -88,6 +95,7 @@ class ventanaBusqueda:
 			return
 
 		cursor.close()
+		c.close()
 
 
 	def btVerClick(self, widget):
@@ -100,7 +108,13 @@ class ventanaBusqueda:
 			nombre = model[treeiter][1]
 			dni = model[treeiter][2]
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		if dni == "" or dni.isspace == True:
@@ -170,6 +184,7 @@ class ventanaBusqueda:
 
 
 		cursor.close()
+		c.close()
 		self.ventana.hide()
 
 	

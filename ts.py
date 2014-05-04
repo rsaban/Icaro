@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import MySQLdb
 import datetime
 import fichaMenor
 
@@ -414,7 +415,13 @@ class ficha_ts:
 		#consultamos el idmenor
 		queryConsultarIdMenor = "SELECT MENOR.IdMenor FROM MENOR, EXPEDIENTE WHERE EXPEDIENTE.IdExpdte = \"" + self.lbMostrarExpdte.get_text() + "\" AND EXPEDIENTE.IdMenor = MENOR.IdMenor"
 			
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -674,12 +681,19 @@ class ficha_ts:
 		self.cargartvPropuestasExtut()
 		self.cargartvReunionesExtut()
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvFamiliares(self):
 		self.lstvFamiliares.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryCargarDatos1 = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
@@ -712,12 +726,19 @@ class ficha_ts:
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvContacFam(self):
 		self.lstvContacFam.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryCargarDatos1 = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
@@ -750,12 +771,19 @@ class ficha_ts:
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvContacTs(self):
 		self.lstvContacTs.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryCargarDatos = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
@@ -788,12 +816,19 @@ class ficha_ts:
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvCitasSAE(self):
 		self.lstvCitaSAE.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		queryObtenerIdSAE = "SELECT SAE.IdSAE FROM SAE WHERE SAE.IdMenor = \'" + idmenor + "\'"
@@ -827,12 +862,19 @@ class ficha_ts:
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvCitasOrienta(self):
 		self.lstvCitaOrienta.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		queryObtenerIdOrienta = "SELECT ORIENTA.IdOrienta FROM ORIENTA WHERE ORIENTA.IdMenor = \'" + idmenor + "\'"
@@ -866,12 +908,19 @@ class ficha_ts:
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvConsultasAACoge(self):
 		self.lstvAAcoge.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		querytvConsultasAAcoge = "SELECT ServicioConsultado, Tecnico, FechaConsulta, IdAAcoge FROM AACOGE WHERE IdMenor = \'" + idmenor + "\' ORDER BY FechaConsulta DESC"
@@ -888,12 +937,19 @@ class ficha_ts:
 				self.lstvAAcoge.append(resultado[i])
 		
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvCursosLabora(self):
 		self.lstvCursosLabora.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryObtenerIdLabora = "SELECT IdLabora FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
@@ -928,11 +984,18 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def cargartvPracticasLabora(self):
 		self.lstvPracticasLabora.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryObtenerIdLabora = "SELECT IdLabora FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
@@ -967,11 +1030,18 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def cargartvConsultasCRoja(self):
 		self.lstvCRoja.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		querytvConsultasCRoja = "SELECT ServicioConsultado, Tecnico, FechaConsulta, IdCruzRoja FROM CRUZ_ROJA WHERE IdMenor = \'" + idmenor + "\' ORDER BY FechaConsulta DESC"
@@ -988,12 +1058,19 @@ class ficha_ts:
 				self.lstvCRoja.append(resultado[i])
 		
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvConsultasSGIT(self):
 		self.lstvSGIT.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		querytvConsultasSGIT = "SELECT ServicioConsultado, Tecnico, FechaConsulta, IdSGit FROM SGIT WHERE IdMenor = \'" + idmenor + "\' ORDER BY FechaConsulta DESC"
@@ -1010,12 +1087,19 @@ class ficha_ts:
 				self.lstvSGIT.append(resultado[i])
 		
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvExtranjeria(self):
 		self.lstvExtranjeria.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		queryObtenerIdExtranjeria = "SELECT IdExtranjeria FROM EXTRANJERIA WHERE IdMenor = \'" + idmenor + "\'"
@@ -1049,12 +1133,19 @@ class ficha_ts:
 			self.lbMsgBox.set_text("Fallo al recuperar los datos")
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvPropuestasExtut(self):
 		self.lstvPropExtut.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		querytvPropuestas = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_PROPUESTAS.FechaPropuesta, EXTUT_PROPUESTAS.IdProp FROM EXTUT, EXTUT_ENTIDADES, EXTUT_PROPUESTAS  WHERE EXTUT.IdMenor = \'" + idmenor + "\' AND EXTUT.IdExtut = EXTUT_PROPUESTAS.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad ORDER BY EXTUT_PROPUESTAS.FechaPropuesta DESC"
@@ -1071,12 +1162,19 @@ class ficha_ts:
 				self.lstvPropExtut.append(resultado[i])
 		
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def cargartvReunionesExtut(self):
 		self.lstvReunionesExtut.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		querytvReuniones = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_REUNIONES.FechaReunion, EXTUT_REUNIONES.TipoReunion, EXTUT_REUNIONES.IdReunion FROM EXTUT, EXTUT_ENTIDADES, EXTUT_REUNIONES  WHERE EXTUT.IdMenor = \'" + idmenor + "\' AND EXTUT.IdExtut = EXTUT_REUNIONES.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad ORDER BY EXTUT_REUNIONES.FechaReunion DESC"
@@ -1093,7 +1191,8 @@ class ficha_ts:
 				self.lstvReunionesExtut.append(resultado[i])
 		
 
-		cursor.close()	
+		cursor.close()
+		c.close()	
 
 	def btAceptarClick(self, widget):#Este es el boton Acutalizar Pestaña
 		paginaActual = self.notebook1.get_current_page()
@@ -1106,7 +1205,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1148,6 +1253,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 1:
 			tipoViv = self.cbxTipoVivienda.get_active_text()
@@ -1156,7 +1262,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1196,6 +1308,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 2:
 			ef = self.tbEconomiaFamiliar.get_buffer()
@@ -1205,7 +1318,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1245,6 +1364,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 3:
 			self.msgbox.show()
@@ -1261,7 +1381,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1301,6 +1427,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 5:
 			jud = self.cbxSitJud.get_active_text()
@@ -1311,7 +1438,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1351,6 +1484,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 6:
 			d = self.tbDiagnostico.get_buffer()
@@ -1358,7 +1492,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1398,6 +1538,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 7:
 			curso_colegio = self.tbCurso.get_text()
@@ -1409,7 +1550,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT SUBAREA_EDUCATIVA_TS.IdSubEduc FROM SUBAREA_EDUCATIVA_TS, AREA_SOCIAL WHERE AREA_SOCIAL.IdSocial = SUBAREA_EDUCATIVA_TS.IdSocial AND AREA_SOCIAL.IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1458,6 +1605,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 8:	
 			ofi = self.tbOficina.get_text()
@@ -1476,7 +1624,13 @@ class ficha_ts:
 			
 			queryComprobarRegistro = "SELECT SAE.IdMenor FROM SAE WHERE IdMenor = \'" + idmenor + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1556,6 +1710,7 @@ class ficha_ts:
 
 
 			cursor.close()
+			c.close()
 		
 		elif paginaActual == 9:
 			ofic = self.tbOficinaOrienta.get_text()
@@ -1568,7 +1723,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT ORIENTA.IdMenor FROM ORIENTA WHERE IdMenor = \'" + idmenor + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1608,6 +1769,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 10:
 			self.msgbox.show()
@@ -1621,7 +1783,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT LABORA.IdMenor FROM LABORA WHERE IdMenor = \'" + idmenor + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1661,6 +1829,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 12:
 			self.msgbox.show()
@@ -1680,7 +1849,13 @@ class ficha_ts:
 
 			queryComprobarRegistro = "SELECT EXTRANJERIA.IdMenor FROM EXTRANJERIA WHERE IdMenor = \'" + idmenor + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1720,6 +1895,7 @@ class ficha_ts:
 					self.btMsgBoxAceptar.set_label("Cerrar")
 
 			cursor.close()
+			c.close()
 
 		elif paginaActual == 14:
 			self.msgbox.show()
@@ -1766,7 +1942,13 @@ class ficha_ts:
 		if str(self.btAceptarFamiliar.get_label()) == "Aceptar":
 			queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -1832,7 +2014,13 @@ class ficha_ts:
 			if treeiter != None:
 				iduc = model[treeiter][2]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarFamiliar = "UPDATE UC SET NombreConviv = \'" + fam + "\', FechaNacConviv = \'" + fNac + "\', Parentesco = \'" + paren + "\', SitLabConviv = \'" + sitL + "\', DireccionConviv = \'" + dire + "\', TelefonoConviv = \'" + tlf + "\', MailConviv = \'" + mail + "\', Conviviente = \'" + conv + "\', Privilegio = \'" + privi + "\' WHERE IdUC = \'" + iduc + "\'"
@@ -1856,6 +2044,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
 		cursor.close()
+		c.close()
 
 	def btDetalleConvClick(self, widget):
 		self.ventanaUC.show()
@@ -1870,7 +2059,13 @@ class ficha_ts:
 		if treeiter != None:
 			iduc = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleFam = "SELECT * FROM UC WHERE IdUC = \'" + iduc + "\'"
@@ -1923,7 +2118,13 @@ class ficha_ts:
 		if treeiter != None:
 			iduc = model[treeiter][2]
 		
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryActualizarFamiliar = "DELETE FROM UC WHERE IdUC = \'" + iduc + "\'"
@@ -1943,6 +2144,7 @@ class ficha_ts:
 		self.cargartvFamiliares()
 
 		cursor.close()
+		c.close()
 
 	def uCDelete(self, widget, data=None):
 		self.ventanaUC.hide()
@@ -1974,7 +2176,13 @@ class ficha_ts:
 		ob = self.tbObservFam.get_buffer()
 		observ = ob.get_text(*ob.get_bounds())
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarContacFam.get_label() == "Aceptar":
@@ -2015,7 +2223,13 @@ class ficha_ts:
 			if treeiter != None:
 				idrcf = model[treeiter][3]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarContactFam = "UPDATE REGIMEN_CONTACTOS_FAMILIA SET TipoContacto = \'" + tipo + "\', PersonaContacto = \'" + pers + "\', LugarContacto = \'" + sitio + "\', FechaContacto = \'" + fechaCont + "\', HoraContacto = \'" + hora + "\', ObservacionesContacto = \'" + observ + "\' WHERE IdRCF = \'" + idrcf + "\'"
@@ -2035,6 +2249,7 @@ class ficha_ts:
 			self.cargartvContacFam()
 		
 		cursor.close()
+		c.close()
 
 	def btDetalleConFamClick(self, widget):
 		self.ventanaContacFam.show()
@@ -2049,7 +2264,13 @@ class ficha_ts:
 		if treeiter != None:
 			idrcf = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleContacFam = "SELECT * FROM REGIMEN_CONTACTOS_FAMILIA WHERE IdRCF = \'" + idrcf + "\'"
@@ -2084,6 +2305,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btBorrarContactoFamClick(self, widget):
 		tv = self.tvContactosFamiliares	
@@ -2092,7 +2314,13 @@ class ficha_ts:
 		if treeiter != None:
 			idrcf = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarContacFam = "DELETE FROM REGIMEN_CONTACTOS_FAMILIA WHERE IdRCF = \'" + idrcf + "\'"
@@ -2112,6 +2340,7 @@ class ficha_ts:
 		self.cargartvContacFam()
 
 		cursor.close()
+		c.close()
 
 	def contactosFamiliaresDelete(self, widget, data=None):
 		self.ventanaContacFam.hide()
@@ -2123,7 +2352,13 @@ class ficha_ts:
 		self.lsFamReg.clear()
 		
 		queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -2152,6 +2387,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
 		cursor.close()
+		c.close()
 
 	def btAceptarSelecFamClick(self, widget):
 		famSelec = self.cbxFamReg.get_active_text()
@@ -2172,7 +2408,13 @@ class ficha_ts:
 		self.lsFamReg.clear()
 		
 		queryComprobarRegistro = "SELECT AREA_SOCIAL.IdSocial FROM AREA_SOCIAL WHERE IdExpdte = \'" + self.lbMostrarExpdte.get_text() + "\'"
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -2201,6 +2443,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
 		cursor.close()
+		c.close()
 
 	def btNuevoContTSClick(self, widget):
 		self.ventanaContactosTS.show()
@@ -2225,7 +2468,13 @@ class ficha_ts:
 		dt = self.tbDetalles.get_buffer()
 		det = dt.get_text(*dt.get_bounds())
 		
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarCTS.get_label() == "Aceptar":
@@ -2266,7 +2515,13 @@ class ficha_ts:
 			if treeiter != None:
 				idrcts = model[treeiter][2]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarContactTs = "UPDATE REGIMEN_CONTACTOS_TS SET FamiliarContacto = \'" + fam + "\', FechaContacto = \'" + fechaContTs + "\', HoraContacto = \'" + hora + "\', ObservacionesContacto = \'" + det + "\' WHERE IdRCTs = \'" + idrcts + "\'"
@@ -2286,6 +2541,7 @@ class ficha_ts:
 			self.cargartvContacTs()
 		
 		cursor.close()
+		c.close()
 
 	def btDetalleConProfClick(self, widget):
 		self.ventanaContactosTS.show()
@@ -2300,7 +2556,13 @@ class ficha_ts:
 		if treeiter != None:
 			idrcts = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleContacTs = "SELECT * FROM REGIMEN_CONTACTOS_TS WHERE IdRCTs = \'" + idrcts + "\'"
@@ -2329,6 +2591,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarConTSClick(self, widget):
 		tv = self.tvContactosProfesionales	
@@ -2337,7 +2600,13 @@ class ficha_ts:
 		if treeiter != None:
 			idrcts = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarContacTs = "DELETE FROM REGIMEN_CONTACTOS_TS WHERE IdRCTs = \'" + idrcts + "\'"
@@ -2357,6 +2626,7 @@ class ficha_ts:
 		self.cargartvContacTs()
 
 		cursor.close()
+		c.close()
 
 	def contactosTSDelete(self, widget, data=None):
 		self.ventanaContactosTS.hide()
@@ -2379,7 +2649,13 @@ class ficha_ts:
 		dt = self.tbDetallesCitaSAE.get_buffer()
 		det = dt.get_text(*dt.get_bounds())
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarCitaSAE.get_label() == "Aceptar":
@@ -2422,7 +2698,13 @@ class ficha_ts:
 			if treeiter != None:
 				idcitasae = model[treeiter][2]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarCitaSAE = "UPDATE SAE_CITAS SET FechaCita = \'" + fechaCita + "\', InformeCita = \'" + det + "\' WHERE IdCita = \'" + idcitasae + "\'"
@@ -2442,6 +2724,7 @@ class ficha_ts:
 			self.cargartvCitasSAE()
 			
 		cursor.close()
+		c.close()
 
 	def btDetalleCitaSAEClick(self, widget):
 		self.ventanaProxCitaSAE.show()
@@ -2456,7 +2739,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcitasae = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleCitaSAE = "SELECT * FROM SAE_CITAS WHERE IdCita = \'" + idcitasae + "\'"
@@ -2482,6 +2771,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarCitaClick(self, widget):
 		tv = self.tvRegistroCitas
@@ -2490,7 +2780,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcitasae = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarCitaSAE = "DELETE FROM SAE_CITAS WHERE IdCita = \'" + idcitasae + "\'"
@@ -2510,6 +2806,7 @@ class ficha_ts:
 		self.cargartvCitasSAE()
 
 		cursor.close()
+		c.close()
 
 	def proxCitaSAEDelete(self, widget, data=None):
 		self.ventanaProxCitaSAE.hide()
@@ -2520,7 +2817,13 @@ class ficha_ts:
 		self.btAceptarSelecTecnico.set_label("Seleccionar")
 		self.lsTecReg.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryOrientador = "SELECT DISTINCT Orientador FROM ORIENTA"
@@ -2539,6 +2842,7 @@ class ficha_ts:
 			self.lsTecReg.append(row=None)
 
 		cursor.close()
+		c.close()
 
 	def selecTecnicoDelete(self, widget, data=None):
 		self.ventanaSelecTecnico.hide()
@@ -2561,7 +2865,13 @@ class ficha_ts:
 		dt = self.tbDetallesCitaOrienta.get_buffer()
 		det = dt.get_text(*dt.get_bounds())
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarCitaOrienta.get_label() == "Aceptar":
@@ -2604,7 +2914,13 @@ class ficha_ts:
 			if treeiter != None:
 				idcitaorienta = model[treeiter][2]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarCitaOrienta = "UPDATE ORIENTA_CITAS SET FechaCita = \'" + fechaCita + "\', Observaciones = \'" + det + "\' WHERE IdCitaOrienta = \'" + idcitaorienta + "\'"
@@ -2624,6 +2940,7 @@ class ficha_ts:
 			self.cargartvCitasOrienta()
 			
 		cursor.close()
+		c.close()
 
 	def btDetalleCitaOrientaClick(self, widget):
 		self.ventanaProxCitaOrienta.show()
@@ -2638,7 +2955,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcitaorienta = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleCitaOrienta = "SELECT * FROM ORIENTA_CITAS WHERE IdCitaOrienta = \'" + idcitaorienta + "\'"
@@ -2664,6 +2987,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def proxCitaOrientaDelete(self, widget, data=None):
 		self.ventanaProxCitaOrienta.hide()
@@ -2676,7 +3000,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcitaorienta = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarCitaOrienta = "DELETE FROM ORIENTA_CITAS WHERE IdCitaOrienta = \'" + idcitaorienta + "\'"
@@ -2696,6 +3026,7 @@ class ficha_ts:
 		self.cargartvCitasOrienta()
 
 		cursor.close()
+		c.close()
 
 	def btNuevoAAcogeClick(self, widget):
 		self.ventanaNuevoAAcoge.show()
@@ -2720,7 +3051,13 @@ class ficha_ts:
 			self.btAceptarSelecTecnico.set_label(" Seleccionar ")
 			self.lsTecReg.clear()
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			queryTecnico = "SELECT DISTINCT Tecnico FROM AACOGE"
@@ -2740,13 +3077,20 @@ class ficha_ts:
 				#self.lsTecReg.append(["No hay resultados", ])
 				
 			cursor.close()
+			c.close()
 
 		elif self.ventanaNuevoAAcoge.get_title() == "Cruz Roja":
 			self.ventanaSelecTecnico.show()
 			self.btAceptarSelecTecnico.set_label("   Seleccionar   ")
 			self.lsTecReg.clear()
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			queryTecnico = "SELECT DISTINCT Tecnico FROM CRUZ_ROJA"
@@ -2765,6 +3109,7 @@ class ficha_ts:
 				self.lsTecReg.append(row=None)
 								
 			cursor.close()
+			c.close()
 
 	def btAceptarSelecTecnicoClick(self, widget):
 		tecSelec = self.cbxTecReg.get_active_text()
@@ -2789,7 +3134,13 @@ class ficha_ts:
 		dt = self.tbObserv.get_buffer()
 		obs = dt.get_text(*dt.get_bounds())
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.ventanaNuevoAAcoge.get_title() == "Andalucía Acoge":
@@ -2818,7 +3169,13 @@ class ficha_ts:
 				if treeiter != None:
 					idaacoge = model[treeiter][3]
 				
-				c = conexion.db
+				try:
+					c = MySQLdb.connect(*conexion.datos)
+				except Exception, e:
+					# self.msgbox.show()
+					# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+					# self.btAceptarMsgBox.set_label("Aceptar")
+					return
 				cursor = c.cursor()
 			
 				queryActualizarConsultaAcoge = "UPDATE AACOGE SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdAAcoge = \'" + idaacoge + "\'"
@@ -2863,7 +3220,13 @@ class ficha_ts:
 				if treeiter != None:
 					idcroja = model[treeiter][3]
 				
-				c = conexion.db
+				try:
+					c = MySQLdb.connect(*conexion.datos)
+				except Exception, e:
+					# self.msgbox.show()
+					# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+					# self.btAceptarMsgBox.set_label("Aceptar")
+					return
 				cursor = c.cursor()
 			
 				queryActualizarConsultaCRoja = "UPDATE CRUZ_ROJA SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdCruzRoja = \'" + idcroja + "\'"
@@ -2908,7 +3271,13 @@ class ficha_ts:
 				if treeiter != None:
 					idsgit = model[treeiter][3]
 				
-				c = conexion.db
+				try:
+					c = MySQLdb.connect(*conexion.datos)
+				except Exception, e:
+					# self.msgbox.show()
+					# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+					# self.btAceptarMsgBox.set_label("Aceptar")
+					return
 				cursor = c.cursor()
 			
 				queryActualizarConsultaSGIT = "UPDATE SGIT SET ServicioConsultado = \'" + servicio + "\', Tecnico = \'" + tco + "\', FechaConsulta = \'" + fechaConsulta + "\', Observaciones = \'" + obs + "\' WHERE IdSGit = \'" + idsgit + "\'"
@@ -2931,6 +3300,7 @@ class ficha_ts:
 
 
 		cursor.close()
+		c.close()
 
 	def btDetalleConsultaAAcogeClick(self, widget):
 		self.ventanaNuevoAAcoge.show()
@@ -2946,7 +3316,13 @@ class ficha_ts:
 		if treeiter != None:
 			idaacoge = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleConsultaAAcoge = "SELECT * FROM AACOGE WHERE IdAAcoge = \'" + idaacoge + "\'"
@@ -2974,9 +3350,16 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarConsultaAAcogeClick(self, widget):
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.ventanaNuevoAAcoge.get_title() == "Andalucía Acoge":
@@ -3049,13 +3432,20 @@ class ficha_ts:
 			self.cargartvConsultasSGIT()
 
 		cursor.close()
+		c.close()
 		
 	def btSelecOrientaLaboraClick(self, widget):
 		self.ventanaSelecTecnico.show()
 		self.btAceptarSelecTecnico.set_label("  Seleccionar  ")
 		self.lsTecReg.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryOrientadorLabora = "SELECT DISTINCT OrientadorLabora FROM LABORA"
@@ -3075,6 +3465,7 @@ class ficha_ts:
 			
 			
 		cursor.close()
+		c.close()
 
 	def btNuevoLaboraClick(self, widget):
 		self.ventanaCursoLabora.show()
@@ -3100,7 +3491,13 @@ class ficha_ts:
 		estado = self.cbxEstado.get_active_text()
 
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarCurso.get_label() == "Aceptar":
@@ -3143,7 +3540,13 @@ class ficha_ts:
 			if treeiter != None:
 				idcursolabora = model[treeiter][3]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarCursoLabora = "UPDATE LABORA_CURSOS SET CursoRealizado = \'" + titulo + "\', FechaInicioCurso = \'" + fechaICurso + "\', ObjetivosCurso = \'" + objetivos + "\', Estado = \'" + estado + "\' WHERE IdCurso = \'" + idcursolabora + "\'"
@@ -3163,6 +3566,7 @@ class ficha_ts:
 			self.cargartvCursosLabora()
 			
 		cursor.close()
+		c.close()
 
 	def btDetalleCursoLaboraClick(self, widget):
 		self.ventanaCursoLabora.show()
@@ -3177,7 +3581,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcursolabora = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleCursoLabora = "SELECT * FROM LABORA_CURSOS WHERE IdCurso = \'" + idcursolabora + "\'"
@@ -3208,6 +3618,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarCursoClick(self, widget):
 		tv = self.tvCursosLabora
@@ -3216,7 +3627,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcursolabora = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarCursoLabora = "DELETE FROM LABORA_CURSOS WHERE IdCurso = \'" + idcursolabora + "\'"
@@ -3236,6 +3653,7 @@ class ficha_ts:
 		self.cargartvCursosLabora()
 
 		cursor.close()
+		c.close()
 
 	def cursoLaboraDelete(self, widget, data=None):
 		self.ventanaCursoLabora.hide()
@@ -3272,7 +3690,13 @@ class ficha_ts:
 		contrato = self.cbxContrato.get_active_text()
 
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarPractica.get_label() == "Aceptar":
@@ -3315,7 +3739,13 @@ class ficha_ts:
 			if treeiter != None:
 				idpracticalabora = model[treeiter][2]
 			
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarPracticaLabora = "UPDATE LABORA_PRACTICAS SET FechaInicio = \'" + fechaIPractica + "\', FechaFin = \'" + fechaFPractica + "\', Empresa = \'" + empresa + "\', DireccionEmpresa = \'" + dirEmpresa + "\', TelefonoEmpresa = \'" + tlfEmpresa + "\', ContactoEmpresa = \'" + contacEmpresa + "\', ContratoTrabajo = \'" + contrato + "\', MailEmpresa = \'" + mailEmpresa + "\' WHERE IdPractica = \'" + idpracticalabora + "\'"
@@ -3335,6 +3765,7 @@ class ficha_ts:
 			self.cargartvPracticasLabora()
 			
 		cursor.close()
+		c.close()
 
 	def btDetallePracticaClick(self, widget):
 		self.ventanaPracticaLabora.show()
@@ -3349,7 +3780,13 @@ class ficha_ts:
 		if treeiter != None:
 			idpracticalabora = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetallePracticaLabora = "SELECT * FROM LABORA_PRACTICAS WHERE IdPractica = \'" + idpracticalabora + "\'"
@@ -3385,6 +3822,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarPracticaClick(self, widget):
 		tv = self.tvPracticasLabora
@@ -3393,7 +3831,13 @@ class ficha_ts:
 		if treeiter != None:
 			idpracticalabora = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarPracticaLabora = "DELETE FROM LABORA_PRACTICAS WHERE IdPractica = \'" + idpracticalabora + "\'"
@@ -3413,6 +3857,7 @@ class ficha_ts:
 		self.cargartvPracticasLabora()
 
 		cursor.close()
+		c.close()
 
 	def practicaLaboraDelete(self, widget, data=None):
 		self.ventanaPracticaLabora.hide()
@@ -3444,7 +3889,13 @@ class ficha_ts:
 		if treeiter != None:
 			idcroja = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleConsultaCRoja = "SELECT * FROM CRUZ_ROJA WHERE IdCruzRoja = \'" + idcroja + "\'"
@@ -3472,6 +3923,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btConsultasSGITClick(self, widget):
 		self.ventanaNuevoAAcoge.show()
@@ -3499,7 +3951,13 @@ class ficha_ts:
 		if treeiter != None:
 			idsgit = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleConsultaSGIT = "SELECT * FROM SGIT WHERE IdSGit = \'" + idsgit + "\'"
@@ -3527,6 +3985,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btNuevoExtranjClick(self, widget):
 		self.ventanaNuevoEmpleoExtranj.show()
@@ -3546,7 +4005,13 @@ class ficha_ts:
 		
 		dur = self.tbDuracion.get_text()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarEmpresaExtranj.get_label() == "Aceptar":
@@ -3589,8 +4054,14 @@ class ficha_ts:
 			if treeiter != None:
 				ideextranj = model[treeiter][2]
 			
-			c = conexion.db
-			cursor = c.cursor()
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
+				cursor = c.cursor()
 		
 			queryActualizarEmpleoExtranj = "UPDATE EXTRANJERIA_EMPRESA SET NombreEEmpresa = \'" + empr + "\', FechaInicio = \'" + fInicioEmpresa + "\', DuracionContrato = \'" + dur + "\' WHERE IdEEmpresa = \'" + ideextranj + "\'"
 
@@ -3609,6 +4080,7 @@ class ficha_ts:
 			self.cargartvExtranjeria()
 			
 		cursor.close()
+		c.close()
 
 	def btDetalleEmpleoClick(self, widget):
 		self.ventanaNuevoEmpleoExtranj.show()
@@ -3623,7 +4095,13 @@ class ficha_ts:
 		if treeiter != None:
 			ideextranj = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleEmpleoExtranj = "SELECT * FROM EXTRANJERIA_EMPRESA WHERE IdEEmpresa = \'" + ideextranj + "\'"
@@ -3649,6 +4127,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarEmpresaExtranjClick(self, widget):
 		tv = self.tvEmpleos
@@ -3657,7 +4136,13 @@ class ficha_ts:
 		if treeiter != None:
 			ideextranj = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarEmpleoExtranj = "DELETE FROM EXTRANJERIA_EMPRESA WHERE IdEEmpresa = \'" + ideextranj + "\'"
@@ -3677,6 +4162,7 @@ class ficha_ts:
 		self.cargartvExtranjeria()
 
 		cursor.close()
+		c.close()
 
 	def empresaExtranjDelete(self, widget, data=None):
 		self.ventanaNuevoEmpleoExtranj.hide()
@@ -3696,7 +4182,13 @@ class ficha_ts:
 		day = datetime.datetime.strptime(f, '%d/%m/%Y')
 		fech = day.strftime('%Y-%m-%d')
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarPropuesta.get_label() == "Aceptar":	
@@ -3802,7 +4294,13 @@ class ficha_ts:
 			if treeiter != None:
 				idprop = model[treeiter][2]
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarPropuesta = "UPDATE EXTUT_PROPUESTAS SET FechaPropuesta = \'" + fech + "\' WHERE IdProp = \'" + idprop + "\'"
@@ -3822,6 +4320,7 @@ class ficha_ts:
 			self.cargartvPropuestasExtut()
 
 		cursor.close()
+		c.close()
 
 	def btDetallePropuestaClick(self, widget):
 		self.ventanaPropExtut.show()
@@ -3837,7 +4336,13 @@ class ficha_ts:
 		if treeiter != None:
 			idprop = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetallePropuesta = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_PROPUESTAS.FechaPropuesta FROM EXTUT, EXTUT_ENTIDADES, EXTUT_PROPUESTAS WHERE EXTUT_PROPUESTAS.IdProp = \'" + idprop + "\' AND EXTUT.IdExtut = EXTUT_PROPUESTAS.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad"
@@ -3865,6 +4370,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarPropuestaClick(self, widget):
 		tv = self.tvPropuestas
@@ -3873,7 +4379,13 @@ class ficha_ts:
 		if treeiter != None:
 			idprop = model[treeiter][2]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarPropuesta = "DELETE FROM EXTUT_PROPUESTAS WHERE IdProp = \'" + idprop + "\'"
@@ -3893,6 +4405,7 @@ class ficha_ts:
 		self.cargartvPropuestasExtut()
 
 		cursor.close()
+		c.close()
 
 	def propuestaExTutDelete(self, widget, data=None):
 		self.ventanaPropExtut.hide()
@@ -3919,7 +4432,13 @@ class ficha_ts:
 		aR = self.tbAcuerdosReunion.get_buffer()
 		acuerR = aR.get_text(*aR.get_bounds())
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 		
 		if self.btAceptarReunion.get_label() == "Aceptar":	
@@ -4025,7 +4544,13 @@ class ficha_ts:
 			if treeiter != None:
 				idreunion = model[treeiter][3]
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 		
 			queryActualizarReunion = "UPDATE EXTUT_REUNIONES SET TipoReunion = \'" + tip + "\', FechaReunion = \'" + fech + "\', AcuerdosReunion = \'" + acuerR + "\' WHERE IdReunion = \'" + idreunion + "\'"
@@ -4045,6 +4570,7 @@ class ficha_ts:
 			self.cargartvReunionesExtut()
 
 		cursor.close()
+		c.close()
 
 	def reunionesExTutDelete(self, widget, data=None):
 		self.ventanaReunionesExtut.hide()
@@ -4066,7 +4592,13 @@ class ficha_ts:
 		tlfnEntity = self.tbTelefonoEntidad.get_text()
 		mailEntity = self.tbMailEntidad.get_text()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 
@@ -4105,13 +4637,20 @@ class ficha_ts:
 			self.cargartvPropuestasExtut()
 			self.cargartvReunionesExtut()
 		cursor.close()
+		c.close()
 
 	def cargarcbxEntidadExtut(self):
 		self.lsEntidadExtut.clear()
 
 		queryEntidades = "SELECT Nombre FROM EXTUT_ENTIDADES ORDER BY Nombre ASC"
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -4129,6 +4668,7 @@ class ficha_ts:
 
 
 		cursor.close()
+		c.close()
 
 	def btDetalleReunionClick(self, widget):
 		self.ventanaReunionesExtut.show()
@@ -4144,7 +4684,13 @@ class ficha_ts:
 		if treeiter != None:
 			idreunion = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleReunion = "SELECT EXTUT_ENTIDADES.Nombre, EXTUT_REUNIONES.FechaReunion, EXTUT_REUNIONES.TipoReunion, EXTUT_REUNIONES.AcuerdosReunion FROM EXTUT, EXTUT_ENTIDADES, EXTUT_REUNIONES WHERE EXTUT_REUNIONES.IdReunion = \'" + idreunion + "\' AND EXTUT.IdExtut = EXTUT_REUNIONES.IdExtut AND EXTUT.IdExTEntidad = EXTUT_ENTIDADES.IdExTEntidad"
@@ -4181,6 +4727,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarReunionClick(self, widget):
 		tv = self.tvReuniones
@@ -4189,7 +4736,13 @@ class ficha_ts:
 		if treeiter != None:
 			idreunion = model[treeiter][3]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarReunion = "DELETE FROM EXTUT_REUNIONES WHERE IdReunion = \'" + idreunion + "\'"
@@ -4209,6 +4762,7 @@ class ficha_ts:
 		self.cargartvReunionesExtut()
 
 		cursor.close()
+		c.close()
 
 	def empresaExTutDelete(self, widget, data=None):
 		self.ventanaEmpresaExTut.hide()
@@ -4227,7 +4781,13 @@ class ficha_ts:
 		if treeiter != None:
 			presa = model[treeiter][0]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleEmpresa = "SELECT * FROM EXTUT_ENTIDADES WHERE EXTUT_ENTIDADES.Nombre = \'" + presa + "\'"
@@ -4252,6 +4812,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btDetalleEmpresa2Click(self, widget):
 		self.ventanaEmpresaExTut.show()
@@ -4266,7 +4827,13 @@ class ficha_ts:
 		if treeiter != None:
 			presa = model[treeiter][0]
 						
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryDetalleEmpresa = "SELECT * FROM EXTUT_ENTIDADES WHERE EXTUT_ENTIDADES.Nombre = \'" + presa + "\'"
@@ -4291,9 +4858,16 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 		
 		cursor.close()
+		c.close()
 
 	def btEliminarEntidadExtutClick(self, widget):
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryBorrarEmpresa = "DELETE FROM EXTUT_ENTIDADES WHERE IdExTEntidad = \'" + self.tbIdEntidadExtut.get_text() + "\'"
@@ -4314,6 +4888,7 @@ class ficha_ts:
 		self.cargartvReunionesExtut()
 
 		cursor.close()
+		c.close()
 
 	def btSelecCentroClick(self, widget):
 		self.ventanaSelecCentroEducativo.show()
@@ -4324,7 +4899,13 @@ class ficha_ts:
 
 		queryCE = "SELECT NombreCE, IdCE FROM CENTRO_EDUCATIVO"
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -4341,6 +4922,7 @@ class ficha_ts:
 			self.lsCentrosEducativos.append(row=None)
 
 		cursor.close()
+		c.close()
 
 	def btNuevoCEClick(self, widget):
 		self.centroEducativo.show()
@@ -4368,7 +4950,13 @@ class ficha_ts:
 		tlfnoCE = self.tbTlfnoCE.get_text()
 		mailCE = self.tbMailCE.get_text()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		if self.btAceptarCE.get_label() == "Aceptar":
@@ -4403,13 +4991,20 @@ class ficha_ts:
 				self.btMsgBoxAceptar.set_label("             Cerrar             ")
 
 		cursor.close()
+		c.close()
 
 		self.cargarCbxCentrosEducativos()
 
 	def btEliminarCEClick(self, widget):
 		queryEliminarCE = "DELETE FROM CENTRO_EDUCATIVO WHERE IdCE = \'" + self.tbCodCE.get_text() + "'" 
 		queryConsultarUsoCE = "SELECT IdSubEduc FROM SUBAREA_EDUCATIVA_TS WHERE IdCE = \'" + self.tbCodCE.get_text() + "'" 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -4437,6 +5032,7 @@ class ficha_ts:
 				self.btMsgBoxAceptar.set_label("             Cerrar             ")
 	
 		cursor.close()
+		c.close()
 
 	def btDetalleCentroClick(self, widget):
 		self.centroEducativo.show()
@@ -4447,7 +5043,14 @@ class ficha_ts:
 
 		queryCE = "SELECT * FROM CENTRO_EDUCATIVO WHERE IdCE = \'" + self.tbCodCentEducativo.get_text() + "\'"
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+
 		cursor = c.cursor()
 
 		try:
@@ -4469,6 +5072,7 @@ class ficha_ts:
 			self.btMsgBoxAceptar.set_label("Cerrar")
 
 		cursor.close()
+		c.close()
 
 	def centroEducativoDelete(self, widget, data=None):
 		self.centroEducativo.hide()
@@ -4479,7 +5083,13 @@ class ficha_ts:
 		return True
 
 	def btFichaClick(self, widget):
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -4516,6 +5126,7 @@ class ficha_ts:
 		self.ficha.hide()
 
 		cursor.close()
+		c.close()
 
 	def fichaDelete(self, widget, data=None):
 		self.ficha.hide()

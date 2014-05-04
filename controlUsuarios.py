@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import MySQLdb
 from Crypto.Cipher import ARC4
 
 
@@ -50,7 +51,13 @@ class users:
 				}
 		builder.connect_signals(dict)
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryCentro = "SELECT NombreCentro FROM CENTRO"
@@ -71,6 +78,7 @@ class users:
 			self.lbMsgBox.set_text("No se han encontrado Centros de Trabajo. Por favor, dirijase al menú \"Herramientas/Nuevo Centro de Trabajo\" y registre un Centro antes de crear usuarios para Icaro. Gracias")
 			self.btAceptarMsgBox.set_label("Cerrar")
 		cursor.close()
+		c.close()
 
 	def cbxCargoTextChanged(self, widget):
 		if self.cbxCargo.get_active() == 0:
@@ -92,7 +100,13 @@ class users:
 
 		queryConsultaCentro = "SELECT IdCentro FROM CENTRO WHERE NombreCentro = \"" + centro + "\""
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
@@ -135,6 +149,7 @@ class users:
 				c.rollback()
 
 			cursor.close()
+			c.close()
 		
 		
 		elif self.btAceptar.get_label() == "Actualizar":

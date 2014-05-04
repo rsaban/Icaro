@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import MySQLdb
 import datetime
 import globales
 from ts import ficha_ts
@@ -178,7 +179,14 @@ class Ficha:
 		#Consultamos si está en activo en el centro
 		queryActivo = "SELECT MAX(ADMISION.FechaAdmision), MAX(ALTA.FechaAlta) FROM ADMISION, ALTA WHERE ADMISION.IdExpdte = \'" + self.tbExpdte.get_text() + "\' AND ALTA.IdExpdte = \'" + self.tbExpdte.get_text() + "\'"
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+
 		cursor = c.cursor()
 
 		try:
@@ -226,6 +234,7 @@ class Ficha:
 				self.btEd.set_sensitive(False)
 
 		cursor.close()
+		c.close()
 
 	def btActualizarClick(self, widget):
 		expdte = self.tbExpdte.get_text()
@@ -261,7 +270,14 @@ class Ficha:
 		queryConsultarIdMenor = "SELECT MENOR.IdMenor FROM MENOR, EXPEDIENTE WHERE EXPEDIENTE.IdExpdte = \"" + expdte + "\" AND EXPEDIENTE.IdMenor = MENOR.IdMenor"
 		queryActualizarDNI = "UPDATE DNI SET TipoDoc = \'" + tipoDoc + "\' WHERE DNI.DNI = \'" + dni + "\'"
 		
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+
 		cursor = c.cursor()
 
 		try:
@@ -363,6 +379,7 @@ class Ficha:
 
 
 		cursor.close()
+		c.close()
 
 	def btAltaClick(self, widget):
 		self.ventanaAlta.show()
@@ -388,7 +405,14 @@ class Ficha:
 
 			queryAlta = "INSERT INTO ALTA (IdExpdte, FechaAlta, MotivoAlta) VALUES (\'" + self.tbExpdte.get_text() + "\', '" + fechaAlta + "\', '" + motivo + "\')"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
+
 			cursor = c.cursor()
 
 			try:
@@ -404,6 +428,7 @@ class Ficha:
 				self.btMsgboxAceptar.set_label("Cerrar")			
 
 			cursor.close()
+			c.close()
 
 	def altaDelete(self, widget, data=None):
 		self.ventanaAlta.hide()
@@ -428,7 +453,14 @@ class Ficha:
 
 		queryRegContactos = "SELECT UC.NombreConviv, UC.Parentesco, UC.Privilegio FROM UC, EXPEDIENTE, AREA_SOCIAL WHERE EXPEDIENTE.IdExpdte = \'" + self.tbExpdte.get_text() + "\' AND EXPEDIENTE.IdExpdte = AREA_SOCIAL.IdExpdte AND AREA_SOCIAL.IdSocial = UC.IdSocial"
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+
 		cursor = c.cursor()
 
 		try:
@@ -443,6 +475,7 @@ class Ficha:
 				self.lstvRegContactos.append(resultado[i])
 
 		cursor.close()
+		c.close()
 
 
 	def regimenContactosDelete(self, widget, data=None):
@@ -461,7 +494,13 @@ class Ficha:
 
 			
 			queryDetallesDNI = "SELECT DNI.FechaExp, DNI.FechaRenov FROM DNI WHERE DNI.DNI = \'" + self.tbDNI.get_text() + "\'"
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -483,6 +522,7 @@ class Ficha:
 				pass
 
 			cursor.close()
+			c.close()
 
 	def btMostrarPasaporteClick(self, widget):
 		if self.tbPasaporte.get_text() == "" or self.tbPasaporte.get_text().isspace == True:
@@ -494,7 +534,13 @@ class Ficha:
 			self.tbPasPasaporte.set_text(self.tbPasaporte.get_text())
 
 			queryDetallesPasaporte = "SELECT PASAPORTE.FechaExpP, PASAPORTE.FechaRenovP FROM PASAPORTE WHERE PASAPORTE.Pasaporte = \'" + self.tbPasaporte.get_text() + "\'"
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -517,6 +563,7 @@ class Ficha:
 				self.tbPasFechaRenov.set_text("vacio")
 
 			cursor.close()
+			c.close()
 
 	def BorrarVentanaDNI(self, widget, data=None):
 		self.ventanaDNI.hide()
@@ -541,7 +588,13 @@ class Ficha:
 			
 			queryActualizarFechasDNI = "UPDATE DNI SET FechaExp = \'" + fechaExpedicion + "\', FechaRenov = \'" + fechaRenovacion + "\' WHERE DNI.DNI = \'" + self.tbDNIDNI.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -552,6 +605,7 @@ class Ficha:
 				c.rollback()
 
 			cursor.close()
+			c.close()
 	
 	def btPasAceptarClick(self, widget):
 		if self.tbPasFechaExp.get_text() == "" or self.tbPasFechaExp.get_text().isspace == True or self.tbPasFechaRenov.get_text() == "" or self.tbPasFechaRenov.get_text().isspace == True:
@@ -568,7 +622,13 @@ class Ficha:
 			
 			queryActualizarFechasPasporte = "UPDATE PASAPORTE SET FechaExpP = \'" + fechaExpedicion + "\', FechaRenovP = \'" + fechaRenovacion + "\' WHERE DNI.DNI = \'" + self.tbDNIDNI.get_text() + "\'"
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -579,6 +639,7 @@ class Ficha:
 				c.rollback()
 
 			cursor.close()
+			c.close()
 
 	def btReabrirClick(self, widget):
 		self.lbCerrado.hide()

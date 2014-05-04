@@ -10,8 +10,10 @@ from eleccion import ventanaEleccion
 from herramientas import tools
 from controles import controls
 import conexion
+import MySQLdb
 from Crypto.Cipher import ARC4
 import globales
+
 
 class main:
 	
@@ -49,7 +51,14 @@ class main:
 		builder.connect_signals(dict)
 
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+
 		cursor = c.cursor()
 
 		queryCentro = "SELECT NombreCentro FROM CENTRO"
@@ -70,6 +79,7 @@ class main:
 			self.lbMsgBox.set_text("No se han encontrado Centros de Trabajo. Por favor, inicie con la clave de Administrador proporcionada, dirijase al menú \"Herramientas/Nuevo Centro de Trabajo\" y registre un Centro antes de empezar a utilizar Icaro. Gracias")
 
 		cursor.close()
+		c.close()
 
 	def btExpedientesClick(self, widget):
 		ventanaEleccion()
@@ -91,7 +101,14 @@ class main:
 		encriptar = ARC4.new('01234567')
 		pass_encriptado = encriptar.encrypt(passw)
 			 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+
 		cursor = c.cursor()
 				
 
@@ -129,6 +146,7 @@ class main:
 			self.lbMsgBox.set_text("Usuario o contraseña incorrectos")
 
 		cursor.close()
+		c.close()
 	
 	def btAceptarMsgBoxClick(self, widget):
 		self.msgbox.hide()

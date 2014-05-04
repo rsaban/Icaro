@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import MySQLdb
 import datetime
 
 
@@ -67,12 +68,16 @@ class taller_ts:
 
 		self.lstvAnadirPar.clear()
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		try:
-			#query = "SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT MAX(FechaAlta) FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)"
-			#SELECT DISTINCT EXPEDIENTE.IdExpdte, MENOR.Nombre FROM EXPEDIENTE, MENOR, ADMISION A1, ALTA AL1 WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor AND A1.IdExpdte =  EXPEDIENTE.IdExpdte  AND AL1.IdExpdte = EXPEDIENTE.IdExpdte AND (SELECT MAX(FechaAdmision) FROM ADMISION A2 WHERE A1.IdExpdte = A2.IdExpdte) < (SELECT CASE WHEN FechaAlta IS NULL THEN 0 ELSE MAX(FechaAlta) END FROM ALTA AL2 WHERE AL1.IdExpdte = AL2.IdExpdte)
 			query = "SELECT EXPEDIENTE.IdExpdte, MENOR.Nombre, MENOR.IdMenor FROM EXPEDIENTE, MENOR WHERE EXPEDIENTE.IdMenor = MENOR.IdMenor"
 			cursor.execute(query)
 		except Exception, e:
@@ -80,11 +85,6 @@ class taller_ts:
 
 		resultado = cursor.fetchall()
 
-		#no funciona todavia!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-		#ahora para cada resultado debo consultar si está activo, si lo está, añadirlo al lstvAnadirPar
-		# for i in range(len(resultado)):
-		# 	if i[2] < i[3]:
-		# 		self.lstvAnadirPar.append(i[0][1])
 
 		if len(resultado) != 0:
 			for i in range(len(resultado)):
@@ -104,6 +104,7 @@ class taller_ts:
 					
 			
 		cursor.close()
+		c.close()
 
 	def btAnadirParClick(self, widget):
 		tv = self.tvAnadirPar	
@@ -148,7 +149,13 @@ class taller_ts:
 		day2 = datetime.datetime.strptime(fechaFinText, '%d/%m/%Y')
 		fechaFin = day2.strftime('%Y-%m-%d')
 
-		c = conexion.db
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
 		cursor = c.cursor()
 
 		queryInsertarTaller = "INSERT INTO TALLERES_TS (NombreTallerTS, FechaInicio, FechaFin) VALUES (\'" + nombreTaller + "', '" + fechaInicio + "', '" + fechaFin + "')"
@@ -158,7 +165,37 @@ class taller_ts:
 			c.commit()
 		except Exception, e:
 			c.rollback()
+
+		queryConsultarTaller = "SELECT IdTallerTS FROM TALLERES_TS WHERE NombreTallerTS = \'" + nombreTaller + "' AND FechaInicio = \'" + fechaInicio + "' AND FechaFin = \'" + fechaFin + "'"
+
+		try:
+			cursor.execute(queryConsultarTaller)
+		except Exception, e:
+			raise e
+
+		idtaller = cursor.fetchone()	
+		idtaller = str(idtaller[0])
+
+		path = self.lstvPartTaller.get_path(self.lstvPartTaller.get_iter_first())
+		treeiter = self.lstvPartTaller.get_iter(path)
+
+		for i in len(self.lstvPartTaller): #'int' object is not iterable
+			try:
+		 		cursor.execute("INSERT INTO TALLERES_TS_PARTICIPANTES (IdTallerTS, IdMenor) VALUES (\'" + treeiter[o] + "', '" + treeiter[1] + "')")
+		 	except Exception, e:
+		 		raise e
 		
+		# for i in len(self.lstvPartTaller):
+		# 	tv = self.tvMenores	
+		# 	selection = tv.get_selection()
+		# 	model, treeiter = selection.get_selected()
+		# 	if treeiter != None:
+
+		# 	try:
+		# 		cursor.execute("INSERT INTO TALLERES_TS_PARTICIPANTES (IdTallerTS, IdMenor) VALUES (\'" + i[o] + "', '" + i[1] + "')")
+		# 	except Exception, e:
+		# 		raise e
+
 
 		c.close()
 

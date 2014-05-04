@@ -7,6 +7,7 @@ import gtk
 import os
 import sys
 import conexion
+import MySQLdb
 import datetime
 import globales
 
@@ -121,7 +122,13 @@ class nuevoExp:
 			queryGrabarAdmision = "INSERT INTO ADMISION (IdExpdte, FechaAdmision) VALUES (\'" + expdte + "', '" + fechaAdmision + "')"
 
 
-			c = conexion.db
+			try:
+				c = MySQLdb.connect(*conexion.datos)
+			except Exception, e:
+				# self.msgbox.show()
+				# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+				# self.btAceptarMsgBox.set_label("Aceptar")
+				return
 			cursor = c.cursor()
 
 			try:
@@ -173,6 +180,7 @@ class nuevoExp:
 				c.rollback()
 
 			cursor.close()
+			c.close()
 		
 	def btCancelarClick(self, widget):
 		self.FichaMenor.hide()

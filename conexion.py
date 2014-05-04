@@ -10,7 +10,6 @@ usuario = 'root'
 clave= 'toor'
 base_de_datos= 'Icaro'
 	
+datos = [db_host, usuario, clave, base_de_datos]
 
-db = MySQLdb.connect(host=db_host, user=usuario, passwd=clave, db=base_de_datos)
-
-#, charset='utf8', init_command='set names utf8')
+#db = MySQLdb.connect(host=db_host, user=usuario, passwd=clave, db=base_de_datos)
