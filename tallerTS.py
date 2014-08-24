@@ -48,6 +48,7 @@ class taller_ts:
 		self.lsFechaInicio = builder.get_object("lsFechaInicio")
 		self.lstvAnadirPar = builder.get_object("lstvAnadirPar")
 		self.lstvPartTaller = builder.get_object("lstvPartTaller")
+		self.lsParticipantes = builder.get_object("lsParticipantes")
 
 		#Obtenemos el msgbox
 		self.msgbox = builder.get_object("msgbox")
@@ -89,6 +90,7 @@ class taller_ts:
 				"on_btAnadirPar_clicked": self.btAnadirParClick,
 				"on_btEliminarPar_clicked": self.btEliminarParClick,
 				"on_btAceptarTaller_clicked": self.btAceptarTallerClick,
+				"on_btVerTaller_clicked": self.btVerTallerClick,
 				"on_participantes_delete_event": self.participantesDelete,
 				"on_datosTaller_delete_event": self.datosTallerDelete,
 				"on_btMsgboxAceptar_clicked": self.btMsgBoxAceptarClick
@@ -156,6 +158,51 @@ class taller_ts:
 		cursor.close()
 		c.close()
 
+	def btVerTallerClick(self, widget):
+		fechaInicioText = self.cbxInicio.get_active_text()
+		day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
+		fechaInicio = day.strftime('%Y-%m-%d')
+		fechaFinText = self.tbFin.get_text()
+		day2 = datetime.datetime.strptime(fechaFinText, '%d/%m/%Y')
+		fechaFin = day2.strftime('%Y-%m-%d')
+
+		queryIdTaller = "SELECT IdTallerTS FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "' AND FechaInicio = \'" + fechaInicio + "' AND FechaFin = \'" + fechaFin + "'"
+
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryIdTaller)
+		except Exception, e:
+			raise e
+
+		resultadoIdTaller = cursor.fetchone()
+
+		if resultadoIdTaller != 0:
+			localizadoIdTaller = str(resultadoIdTaller[0])
+
+
+		queryParticipantes = "SELECT MENOR.Nombre FROM MENOR, TALLERES_TS_PARTICIPANTES, TALLERES_TS WHERE MENOR.IdMenor = TALLERES_TS_PARTICIPANTES.IdMenor AND TALLERES_TS_PARTICIPANTES.IdTallerTS = TALLERES_TS.IdTallerTS AND TALLERES_TS.IdTallerTS = \'" + localizadoIdTaller + "'"
+
+		try:
+			cursor.execute(queryParticipantes)
+		except Exception, e:
+			raise e
+
+		resultadoParticipantes = cursor.fetchall()
+
+		if len(resultadoParticipantes) != 0:
+			for i in range(len(resultadoParticipantes)):
+				self.lsParticipantes.append(resultadoParticipantes[i])
+
+		cursor.close()
+		c.close()
 
 	def datosTallerDelete(self, widget, data=None):
 		self.datosTaller.hide()
