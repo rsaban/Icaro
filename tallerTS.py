@@ -34,9 +34,18 @@ class taller_ts:
 		self.tbNombreTaller = builder.get_object("tbNombreTaller")
 		self.tbFechaInicio = builder.get_object("tbFechaInicio")
 		self.tbFechaFin = builder.get_object("tbFechaFin")
+		#tallerTS
+		self.cbxTaller = builder.get_object("cbxTaller")
+		self.cbxInicio = builder.get_object("cbxInicio")
+		self.tbFin = builder.get_object("tbFin")
 
+		#ponemos la seleccion múltiple de tvMenores
+		selection = self.tvMenores.get_selection()
+		selection.set_mode(gtk.SELECTION_MULTIPLE)
 
 		#obtengo los liststore
+		self.lsTaller = builder.get_object("lsTaller")
+		self.lsFechaInicio = builder.get_object("lsFechaInicio")
 		self.lstvAnadirPar = builder.get_object("lstvAnadirPar")
 		self.lstvPartTaller = builder.get_object("lstvPartTaller")
 
@@ -45,7 +54,37 @@ class taller_ts:
 		self.lbMsgBox = builder.get_object("lbMsgBox")
 		self.btMsgboxAceptar = builder.get_object("btMsgboxAceptar")
 
-		dict = {"on_btMostrarTaller_clicked": self.btMostrarTallerClick,
+		#cargo el cbxTaller con los talleres existentes si los hubiera.
+		queryNombresTaller = "SELECT DISTINCT NombreTallerTS FROM TALLERES_TS"
+
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryNombresTaller)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.lsTaller.append(resultado[i])
+
+		cursor.close()
+		c.close()
+
+
+
+		dict = {"on_btNuevoTaller_clicked": self.btNuevoTallerClick,
+				"on_cbxTaller_changed": self.cbxTallerTextChanged,
+				"on_cbxInicio_changed": self.cbxInicioTextChanged,
 				"on_btMostrarAnadirPar_clicked": self.btMostrarAnadirParClick,
 				"on_btAnadirPar_clicked": self.btAnadirParClick,
 				"on_btEliminarPar_clicked": self.btEliminarParClick,
@@ -56,9 +95,68 @@ class taller_ts:
 				}
 		builder.connect_signals(dict)
 
-	def btMostrarTallerClick(self, widget):
+	def btNuevoTallerClick(self, widget):
 		self.datosTaller.show()
-		
+
+	def cbxTallerTextChanged(self, widget):
+		queryFechasInicioTaller = "SELECT FechaInicio FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "'"
+
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryFechasInicioTaller)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchall()
+
+		if len(resultado) != 0:
+			for i in range(len(resultado)):
+				self.acambiar = resultado[i]
+				dateFormat = str(self.acambiar[0].strftime("%d/%m/%Y"))
+				self.lsFechaInicio.append([dateFormat])
+
+		cursor.close()
+		c.close()
+
+	def cbxInicioTextChanged(self, widget):
+		fechaInicioText = self.cbxInicio.get_active_text()
+		day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
+		fechaInicio = day.strftime('%Y-%m-%d')
+
+		queryFechaFinTaller = "SELECT FechaFin FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "' AND FechaInicio = \'" + fechaInicio + "'"
+
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryFechaFinTaller)
+		except Exception, e:
+			raise e
+
+		resultado = cursor.fetchone()
+
+		if resultado != 0:
+			dateFormat = resultado[0].strftime("%d/%m/%Y")
+			self.tbFin.set_text(dateFormat)
+
+		cursor.close()
+		c.close()
+
+
 	def datosTallerDelete(self, widget, data=None):
 		self.datosTaller.hide()
 		return True
@@ -174,16 +272,29 @@ class taller_ts:
 			raise e
 
 		idtaller = cursor.fetchone()	
-		idtaller = str(idtaller[0])
+		idTaller = str(idtaller[0])
 
-		path = self.lstvPartTaller.get_path(self.lstvPartTaller.get_iter_first())
-		treeiter = self.lstvPartTaller.get_iter(path)
+		self.tvMenores.get_selection().select_all()
+		tree,iter = self.tvMenores.get_selection().get_selected_rows()
 
-		for i in len(self.lstvPartTaller): #'int' object is not iterable
+		for i in iter:
+			idmenor = tree.get_value(tree.get_iter(i), 1)
 			try:
-		 		cursor.execute("INSERT INTO TALLERES_TS_PARTICIPANTES (IdTallerTS, IdMenor) VALUES (\'" + treeiter[o] + "', '" + treeiter[1] + "')")
+		 		cursor.execute("INSERT INTO TALLERES_TS_PARTICIPANTES (IdTallerTS, IdMenor) VALUES (\'" + idTaller + "', '" + idmenor + "')")
+		 		c.commit()
 		 	except Exception, e:
-		 		raise e
+		 		c.rollback()
+
+		self.datosTaller.hide()
+
+		# path = self.lstvPartTaller.get_path(self.lstvPartTaller.get_iter_first())
+		# treeiter = self.lstvPartTaller.get_iter(path)
+
+		# for i in len(self.lstvPartTaller): #'int' object is not iterable
+		# 	try:
+		#  		cursor.execute("INSERT INTO TALLERES_TS_PARTICIPANTES (IdTallerTS, IdMenor) VALUES (\'" + idTaller + "', '" + treeiter[1] + "')")
+		#  	except Exception, e:
+		#  		raise e
 		
 		# for i in len(self.lstvPartTaller):
 		# 	tv = self.tvMenores	
