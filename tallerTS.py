@@ -26,6 +26,7 @@ class taller_ts:
 		#obtengo las ventanas
 		self.datosTaller = builder.get_object("datosTaller")
 		self.participantes = builder.get_object("participantes")
+		self.nombreSesion = builder.get_object("nombreSesion")
 
 		#obtengo los objetos
 		self.tvAnadirPar = builder.get_object("tvAnadirPar")
@@ -38,6 +39,8 @@ class taller_ts:
 		self.cbxTaller = builder.get_object("cbxTaller")
 		self.cbxInicio = builder.get_object("cbxInicio")
 		self.tbFin = builder.get_object("tbFin")
+		#nombreSesion
+		self.tbNombreSesion = builder.get_object("tbNombreSesion")
 
 		#ponemos la seleccion múltiple de tvMenores
 		selection = self.tvMenores.get_selection()
@@ -49,6 +52,7 @@ class taller_ts:
 		self.lstvAnadirPar = builder.get_object("lstvAnadirPar")
 		self.lstvPartTaller = builder.get_object("lstvPartTaller")
 		self.lsParticipantes = builder.get_object("lsParticipantes")
+		self.lsSesiones = builder.get_object("lsSesiones")
 
 		#Obtenemos el msgbox
 		self.msgbox = builder.get_object("msgbox")
@@ -91,6 +95,9 @@ class taller_ts:
 				"on_btEliminarPar_clicked": self.btEliminarParClick,
 				"on_btAceptarTaller_clicked": self.btAceptarTallerClick,
 				"on_btVerTaller_clicked": self.btVerTallerClick,
+				"on_btNuevaSesion_clicked": self.btNuevaSesionClick,
+				"on_btAceptarNombreSesion_clicked": self.btAceptarNombreSesionClick,
+				"on_nombreSesion_delete_event": self.nombreSesionDelete,
 				"on_participantes_delete_event": self.participantesDelete,
 				"on_datosTaller_delete_event": self.datosTallerDelete,
 				"on_btMsgboxAceptar_clicked": self.btMsgBoxAceptarClick
@@ -101,6 +108,10 @@ class taller_ts:
 		self.datosTaller.show()
 
 	def cbxTallerTextChanged(self, widget):
+		self.lsFechaInicio.clear()
+		self.tbFin.set_text("")
+		self.lsParticipantes.clear()
+		self.lsSesiones.clear()
 		queryFechasInicioTaller = "SELECT FechaInicio FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "'"
 
 		try:
@@ -159,6 +170,8 @@ class taller_ts:
 		c.close()
 
 	def btVerTallerClick(self, widget):
+		self.lsParticipantes.clear()
+		self.lsSesiones.clear()
 		fechaInicioText = self.cbxInicio.get_active_text()
 		day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
 		fechaInicio = day.strftime('%Y-%m-%d')
@@ -187,7 +200,7 @@ class taller_ts:
 		if resultadoIdTaller != 0:
 			localizadoIdTaller = str(resultadoIdTaller[0])
 
-
+		#cargamos los participantes
 		queryParticipantes = "SELECT MENOR.Nombre FROM MENOR, TALLERES_TS_PARTICIPANTES, TALLERES_TS WHERE MENOR.IdMenor = TALLERES_TS_PARTICIPANTES.IdMenor AND TALLERES_TS_PARTICIPANTES.IdTallerTS = TALLERES_TS.IdTallerTS AND TALLERES_TS.IdTallerTS = \'" + localizadoIdTaller + "'"
 
 		try:
@@ -200,6 +213,22 @@ class taller_ts:
 		if len(resultadoParticipantes) != 0:
 			for i in range(len(resultadoParticipantes)):
 				self.lsParticipantes.append(resultadoParticipantes[i])
+
+
+		#cargamos las sesiones
+		querySesiones = "SELECT NombreSesion FROM TALLERES_TS_SESION WHERE IdTallerTS = \'" + str(resultadoIdTaller[0]) + "'"
+
+		try:
+			cursor.execute(querySesiones)
+		except Exception, e:
+			raise e
+
+		resultadoSesiones = cursor.fetchall()
+
+		if len(resultadoSesiones) != 0:
+			for i in range(len(resultadoSesiones)):
+				self.lsSesiones.append(resultadoSesiones[i])
+
 
 		cursor.close()
 		c.close()
@@ -357,7 +386,54 @@ class taller_ts:
 
 		c.close()
 
+	def btNuevaSesionClick(self, widget):
+		self.nombreSesion.show()
 
+	def btAceptarNombreSesionClick(self, widget):
+		nombre = self.tbNombreSesion.get_text()
+		fechaInicioText = self.cbxInicio.get_active_text()
+		day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
+		fechaInicio = day.strftime('%Y-%m-%d')
+		fechaFinText = self.tbFin.get_text()
+		day2 = datetime.datetime.strptime(fechaFinText, '%d/%m/%Y')
+		fechaFin = day2.strftime('%Y-%m-%d')
+
+		queryIdTaller = "SELECT IdTallerTS FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "' AND FechaInicio = \'" + fechaInicio + "' AND FechaFin = \'" + fechaFin + "'"
+
+		try:
+		 	c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			# self.btAceptarMsgBox.set_label("Aceptar")
+			return
+		cursor = c.cursor()
+
+		try:
+			cursor.execute(queryIdTaller)
+		except Exception, e:
+			raise e
+
+		resultadoIdTaller = cursor.fetchone()
+		resultadoIdTaller = str(resultadoIdTaller[0])
+
+		queryNuevaSesion = "INSERT INTO TALLERES_TS_SESION (NombreSesion, IdTallerTS) VALUES (\'" + nombre + "', '" + resultadoIdTaller + "')"
+
+		try:
+			cursor.execute(queryNuevaSesion)
+			c.commit()
+		except Exception, e:
+			c.rollback()
+
+		cursor.close()
+		c.close()
+
+		self.nombreSesionDelete(self)
+		
+
+	def nombreSesionDelete(self, widget, data=None):
+		self.nombreSesion.hide()
+		return True
 
 	def btMsgBoxAceptarClick(self, widget):
 		if self.btMsgboxAceptar.get_label() == "Cerrar":
