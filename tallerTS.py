@@ -53,6 +53,7 @@ class taller_ts:
 		self.lstvPartTaller = builder.get_object("lstvPartTaller")
 		self.lsParticipantes = builder.get_object("lsParticipantes")
 		self.lsSesiones = builder.get_object("lsSesiones")
+		self.lstvAsistentes = builder.get_object("lstvAsistentes")
 
 		#Obtenemos el msgbox
 		self.msgbox = builder.get_object("msgbox")
@@ -97,7 +98,10 @@ class taller_ts:
 				"on_btVerTaller_clicked": self.btVerTallerClick,
 				"on_btNuevaSesion_clicked": self.btNuevaSesionClick,
 				"on_btAceptarNombreSesion_clicked": self.btAceptarNombreSesionClick,
+				"on_tvSesiones_row_activated": self.tvSesionesDobleClick,
 				"on_nombreSesion_delete_event": self.nombreSesionDelete,
+				"on_cellToogleAsistencia_toggled": self.controlAsistentes,
+				"on_btGuardarSesion_clicked": self.btGuardarSesionClick,
 				"on_participantes_delete_event": self.participantesDelete,
 				"on_datosTaller_delete_event": self.datosTallerDelete,
 				"on_btMsgboxAceptar_clicked": self.btMsgBoxAceptarClick
@@ -201,7 +205,7 @@ class taller_ts:
 			localizadoIdTaller = str(resultadoIdTaller[0])
 
 		#cargamos los participantes
-		queryParticipantes = "SELECT MENOR.Nombre FROM MENOR, TALLERES_TS_PARTICIPANTES, TALLERES_TS WHERE MENOR.IdMenor = TALLERES_TS_PARTICIPANTES.IdMenor AND TALLERES_TS_PARTICIPANTES.IdTallerTS = TALLERES_TS.IdTallerTS AND TALLERES_TS.IdTallerTS = \'" + localizadoIdTaller + "'"
+		queryParticipantes = "SELECT MENOR.Nombre, MENOR.IdMenor FROM MENOR, TALLERES_TS_PARTICIPANTES, TALLERES_TS WHERE MENOR.IdMenor = TALLERES_TS_PARTICIPANTES.IdMenor AND TALLERES_TS_PARTICIPANTES.IdTallerTS = TALLERES_TS.IdTallerTS AND TALLERES_TS.IdTallerTS = \'" + localizadoIdTaller + "'"
 
 		try:
 			cursor.execute(queryParticipantes)
@@ -209,14 +213,19 @@ class taller_ts:
 			raise e
 
 		resultadoParticipantes = cursor.fetchall()
-
+		
+		#limpio el liststore Asistentes
+		self.lstvAsistentes.clear()
+		
 		if len(resultadoParticipantes) != 0:
 			for i in range(len(resultadoParticipantes)):
-				self.lsParticipantes.append(resultadoParticipantes[i])
+				self.lsParticipantes.append([resultadoParticipantes[i][0]])
+				#los cargo también en la pestaña "Asistentes"
+				self.lstvAsistentes.append([resultadoParticipantes[i][0], False, resultadoParticipantes[i][1]])
 
 
 		#cargamos las sesiones
-		querySesiones = "SELECT NombreSesion FROM TALLERES_TS_SESION WHERE IdTallerTS = \'" + str(resultadoIdTaller[0]) + "'"
+		querySesiones = "SELECT NombreSesion, IdSesion FROM TALLERES_TS_SESION WHERE IdTallerTS = \'" + str(resultadoIdTaller[0]) + "'"
 
 		try:
 			cursor.execute(querySesiones)
@@ -430,6 +439,67 @@ class taller_ts:
 
 		self.nombreSesionDelete(self)
 		
+	def tvSesionesDobleClick(self, treeview, path, column):
+		# Aquí hacemos dobleclick a las sesiones. Funciona guay.
+		# self.msgbox.show()
+		# self.lbMsgBox.set_text("Doble click listo")
+		# self.btMsgboxAceptar.set_label("Cerrar")
+		pass
+		#Mirar el programa de caja. Hacia algo parecido a lo que tengo que hacer aquí
+		# tv = self.tvAnadirPar	
+		# selection = tv.get_selection()
+		# model, treeiter = selection.get_selected()
+		# if treeiter != None:
+		# 	nombre = model[treeiter][1]
+		# 	idmenor = model[treeiter][2] 
+
+		# 	self.lstvPartTaller.append([nombre, idmenor])
+
+		# 	self.participantes.hide()
+
+		# else:
+		#  	self.msgbox.show()
+		#  	self.lbMsgBox.set_text("No hay nada seleccionado")
+		#  	self.btMsgboxAceptar.set_label("Cerrar")
+
+
+	def controlAsistentes(self, widget, path):
+		self.lstvAsistentes[path][1] = not self.lstvAsistentes[path][1]
+
+	def btGuardarSesionClick(self, widget):
+		# fechaInicioText = self.cbxInicio.get_active_text()
+		# day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
+		# fechaInicio = day.strftime('%Y-%m-%d')
+		# fechaFinText = self.tbFin.get_text()
+		# day2 = datetime.datetime.strptime(fechaFinText, '%d/%m/%Y')
+		# fechaFin = day2.strftime('%Y-%m-%d')
+
+		# queryIdTaller = "SELECT IdTallerTS FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "' AND FechaInicio = \'" + fechaInicio + "' AND FechaFin = \'" + fechaFin + "'"
+
+		# try:
+		# 	c = MySQLdb.connect(*conexion.datos)
+		# except Exception, e:
+		# 	# self.msgbox.show()
+		# 	# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+		# 	# self.btAceptarMsgBox.set_label("Aceptar")
+		# 	return
+		# cursor = c.cursor()
+
+		# try:
+		# 	cursor.execute(queryIdTaller)
+		# except Exception, e:
+		# 	raise e
+
+		# resultadoIdTaller = cursor.fetchone()
+
+		# if resultadoIdTaller != 0:
+		# 	localizadoIdTaller = str(resultadoIdTaller[0])
+
+
+		# cursor.close()
+		# c.close()
+		pass
+
 
 	def nombreSesionDelete(self, widget, data=None):
 		self.nombreSesion.hide()
