@@ -39,8 +39,17 @@ class taller_ts:
 		self.cbxTaller = builder.get_object("cbxTaller")
 		self.cbxInicio = builder.get_object("cbxInicio")
 		self.tbFin = builder.get_object("tbFin")
+		self.tbTallerActivo = builder.get_object("tbTallerActivo")
 		#nombreSesion
 		self.tbNombreSesion = builder.get_object("tbNombreSesion")
+		#objetos del notebook
+		self.tbObjetivos = builder.get_object("tbObjetivos")
+		self.tbMaterial = builder.get_object("tbMaterial")
+		self.tbActividades = builder.get_object("tbActividades")
+		self.tbDuracion = builder.get_object("tbDuracion")
+		self.tvParticipante = builder.get_object("tvParticipante")
+		self.tbEvaluacion = builder.get_object("tbEvaluacion")
+		self.tvSesiones = builder.get_object("tvSesiones")
 
 		#ponemos la seleccion múltiple de tvMenores
 		selection = self.tvMenores.get_selection()
@@ -203,6 +212,8 @@ class taller_ts:
 
 		if resultadoIdTaller != 0:
 			localizadoIdTaller = str(resultadoIdTaller[0])
+
+		self.tbTallerActivo.set_text(localizadoIdTaller)
 
 		#cargamos los participantes
 		queryParticipantes = "SELECT MENOR.Nombre, MENOR.IdMenor FROM MENOR, TALLERES_TS_PARTICIPANTES, TALLERES_TS WHERE MENOR.IdMenor = TALLERES_TS_PARTICIPANTES.IdMenor AND TALLERES_TS_PARTICIPANTES.IdTallerTS = TALLERES_TS.IdTallerTS AND TALLERES_TS.IdTallerTS = \'" + localizadoIdTaller + "'"
@@ -444,62 +455,110 @@ class taller_ts:
 		# self.msgbox.show()
 		# self.lbMsgBox.set_text("Doble click listo")
 		# self.btMsgboxAceptar.set_label("Cerrar")
+		
 		pass
-		#Mirar el programa de caja. Hacia algo parecido a lo que tengo que hacer aquí
-		# tv = self.tvAnadirPar	
-		# selection = tv.get_selection()
-		# model, treeiter = selection.get_selected()
-		# if treeiter != None:
-		# 	nombre = model[treeiter][1]
-		# 	idmenor = model[treeiter][2] 
-
-		# 	self.lstvPartTaller.append([nombre, idmenor])
-
-		# 	self.participantes.hide()
-
-		# else:
-		#  	self.msgbox.show()
-		#  	self.lbMsgBox.set_text("No hay nada seleccionado")
-		#  	self.btMsgboxAceptar.set_label("Cerrar")
-
 
 	def controlAsistentes(self, widget, path):
 		self.lstvAsistentes[path][1] = not self.lstvAsistentes[path][1]
 
 	def btGuardarSesionClick(self, widget):
-		# fechaInicioText = self.cbxInicio.get_active_text()
-		# day = datetime.datetime.strptime(fechaInicioText, '%d/%m/%Y')
-		# fechaInicio = day.strftime('%Y-%m-%d')
-		# fechaFinText = self.tbFin.get_text()
-		# day2 = datetime.datetime.strptime(fechaFinText, '%d/%m/%Y')
-		# fechaFin = day2.strftime('%Y-%m-%d')
+		#obtenemos la sesion
+		tv = self.tvSesiones	
+		selection = tv.get_selection()
+		model, treeiter = selection.get_selected()
+		if treeiter != None:
+			sesion = model[treeiter][1]
+		else: 
+			self.msgbox.show()
+			self.lbMsgBox.set_text("Seleccione la sesión a guardar")
+			self.btMsgboxAceptar.set_label("Cerrar")
+			return
+		#obtenemos el taller
+		taller = self.tbTallerActivo.get_text()
+		#obtenemos los demás objetos del notebook.
+		obj = self.tbObjetivos.get_buffer()
+		objetivos = obj.get_text(*obj.get_bounds())
+		mat = self.tbMaterial.get_buffer()
+		material = mat.get_text(*mat.get_bounds())
+		act = self.tbActividades.get_buffer()
+		actividades = act.get_text(*act.get_bounds())
+		duracion = self.tbDuracion.get_text()
+		eva = self.tbEvaluacion.get_buffer()
+		evaluacion = eva.get_text(*eva.get_bounds())
 
-		# queryIdTaller = "SELECT IdTallerTS FROM TALLERES_TS WHERE NombreTallerTS = \'" + self.cbxTaller.get_active_text() + "' AND FechaInicio = \'" + fechaInicio + "' AND FechaFin = \'" + fechaFin + "'"
+		queryGuardarSesion = "UPDATE TALLERES_TS_SESION SET Objetivos = \'" + objetivos + "\', Material = \'" + material + "\', Actividades = \'" + actividades + "\', Duracion = \'" + duracion + "\', Evaluacion = \'" + evaluacion + "\' WHERE IdSesion = \'" + sesion + "\' AND IdTallerTS = \'" + taller + "\'"
 
-		# try:
-		# 	c = MySQLdb.connect(*conexion.datos)
-		# except Exception, e:
-		# 	# self.msgbox.show()
-		# 	# self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
-		# 	# self.btAceptarMsgBox.set_label("Aceptar")
-		# 	return
-		# cursor = c.cursor()
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			self.btMsgboxAceptar.set_label("Cerrar")
+			return
+		cursor = c.cursor()
 
-		# try:
-		# 	cursor.execute(queryIdTaller)
-		# except Exception, e:
-		# 	raise e
+		try:
+			cursor.execute(queryGuardarSesion)
+			c.commit()
+			# self.msgbox.show()
+			# self.lbMsgBox.set_text("Guardado con éxito")
+			# self.btMsgboxAceptar.set_label("Cerrar")
+		except Exception, e:
+			c.rollback()
+			self.msgbox.show()
+			self.lbMsgBox.set_text("¿Que pasó? No se guardó!!")
+			self.btMsgboxAceptar.set_label("Cerrar")
 
-		# resultadoIdTaller = cursor.fetchone()
-
-		# if resultadoIdTaller != 0:
-		# 	localizadoIdTaller = str(resultadoIdTaller[0])
+		cursor.close()
+		c.close()
 
 
-		# cursor.close()
-		# c.close()
-		pass
+		#Ahora reocojo y grabo los asistentes
+		selection = self.tvParticipante.get_selection()
+		selection.set_mode(gtk.SELECTION_MULTIPLE)
 
+		listaAsisten = []
+		listaNoAsisten = []
+		self.tvParticipante.get_selection().select_all()
+		tree,iter = self.tvParticipante.get_selection().get_selected_rows()
+		for i in iter:
+			checado = tree.get_value(tree.get_iter(i), 1)
+			if checado == True:
+				listaAsisten.append(tree.get_value(tree.get_iter(i), 2))
+			else:
+				listaNoAsisten.append(tree.get_value(tree.get_iter(i), 2))
+
+		try:
+			c = MySQLdb.connect(*conexion.datos)
+		except Exception, e:
+			self.msgbox.show()
+			self.lbMsgBox.set_text("No se pudo solicitar el expediente. El servidor no está disponible. Intentelo más tarde.")
+			self.btMsgboxAceptar.set_label("Cerrar")
+			return
+		cursor = c.cursor()
+
+		for i in range(len(listaAsisten)):
+			asiste = listaAsisten[i]
+
+			queryAsistencia = "INSERT INTO TALLERES_TS_ASISTENTES VALUES (\'" + taller + "\', '" + sesion + "\', '" + asiste + "\')"
+
+			try:
+				cursor.execute(queryAsistencia)
+				c.commit()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("Guardado con éxito")
+				self.btMsgboxAceptar.set_label("Cerrar")
+			except Exception, e:
+				c.rollback()
+				self.msgbox.show()
+				self.lbMsgBox.set_text("¿Que pasó? No se guardó!!")
+				self.btMsgboxAceptar.set_label("Cerrar")
+
+
+
+
+		cursor.close()
+		c.close()
 
 	def nombreSesionDelete(self, widget, data=None):
 		self.nombreSesion.hide()
